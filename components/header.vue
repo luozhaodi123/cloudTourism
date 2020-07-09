@@ -1,5 +1,5 @@
 <template>
-  <div>首页中间的内容</div>
+  <div>头部组件</div>
 </template>
 
 <script>
