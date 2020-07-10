@@ -12,7 +12,6 @@
               <el-form-item label="密码:">
                 <el-input type="password" v-model="formLogin.password"></el-input>
               </el-form-item>
-
               <el-form-item class="btnWrapper">
                 <el-button type="primary">登录</el-button>
                 <el-button>重置</el-button>

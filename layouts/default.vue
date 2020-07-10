@@ -2,7 +2,7 @@
   <div>
     <!-- 头部组件 -->
     <Header />
-    <Nuxt class="content" />
+    <Nuxt />
     <!-- 尾部组件 -->
     <Footer />
   </div>
@@ -50,8 +50,5 @@ a:hover {
 em,
 i {
   font-style: normal;
-}
-.content {
-  height: 600px;
 }
 </style>

@@ -30,6 +30,9 @@ export default {};
 .header {
   height: 60px;
   line-height: 60px;
+  box-shadow: 0 3px 0 #f5f5f5;
+  border-bottom: 1px solid #ccc;
+  box-sizing: border-box;
   .main {
     width: 1000px;
     margin: 0 auto;
@@ -46,6 +49,8 @@ export default {};
       flex: 1;
       margin: 0 20px;
       a {
+        display: block;
+        height: 60px;
         padding: 0 20px;
         font-size: 16px;
         box-sizing: border-box;
@@ -56,7 +61,7 @@ export default {};
           color: #409eff;
         }
       }
-      /deep/.nuxt-link-exact-active {
+      .nuxt-link-exact-active {
         background-color: #409eff;
         color: white !important;
       }
