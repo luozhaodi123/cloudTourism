@@ -16,14 +16,37 @@
       </el-row>
       <!-- 登录或注册 -->
       <el-row type="flex" class="validation">
-        <nuxt-link to="/user/login">登录或注册</nuxt-link>
+        <!-- 如果用户存在则展示用户信息，用户数据来自store -->
+        <el-dropdown v-if="$store.state.user.userInfo.token">
+          <el-row type="flex" align="middle" class="el-dropdown-link">
+            <nuxt-link to="#">
+              <img src="http://157.122.54.189:9093/images/pic_sea.jpeg" />
+              用户名
+            </nuxt-link>
+            <i class="el-icon-caret-bottom el-icon--right"></i>
+          </el-row>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item>
+              <nuxt-link to="#">个人中心</nuxt-link>
+            </el-dropdown-item>
+            <el-dropdown-item>
+              <div @click="handleLogout">退出</div>
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+        <!-- 不存在用户信息就展示登录注册链接 -->
+        <nuxt-link to="/user/login" v-else class="current-link">登录/注册</nuxt-link>
       </el-row>
     </el-row>
   </header>
 </template>
 
 <script>
-export default {};
+export default {
+  methods: {
+    handleLogout() {}
+  }
+};
 </script>
 
 <style lang="less" scoped>
@@ -67,12 +90,33 @@ export default {};
       }
     }
     .validation {
-      a {
+      .current-link {
         font-size: 14px;
         color: #666;
         &:hover {
           color: #409eff;
           text-decoration: underline;
+        }
+      }
+      .el-dropdown-link {
+        margin-left: 20px;
+
+        &:hover {
+          img {
+            border-color: #409eff;
+          }
+        }
+
+        a {
+          display: block;
+        }
+
+        img {
+          width: 32px;
+          height: 32px;
+          vertical-align: middle;
+          border: 2px #fff solid;
+          border-radius: 50px;
         }
       }
     }
