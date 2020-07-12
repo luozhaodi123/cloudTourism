@@ -30,8 +30,9 @@
             type="text"
             v-model="searchValue"
             :placeholder="options[currentTabIndex].placeholder"
+            @keyup.enter="handleSearch"
           />
-          <i class="el-icon-search"></i>
+          <i class="el-icon-search" @click="handleSearch"></i>
         </el-row>
       </div>
     </div>
@@ -81,11 +82,20 @@ export default {
     });
   },
   methods: {
+    // 实现tab切换
     handleClickTab(index) {
       this.currentTabIndex = index;
-      if (this.currentTabIndex == 2) {
-        this.$router.push("/hotel");
+      const item = this.options[index];
+      if (item.name === "机票") {
+        return this.$router.push(item.pageUrl);
       }
+    },
+    // 搜索
+    handleSearch() {
+      const inputValue = this.searchValue;
+      const item = this.options[this.currentTabIndex];
+      // 跳转到对应的页面同时把参数带过去
+      this.$router.push(item.pageUrl + inputValue);
     }
   }
 };

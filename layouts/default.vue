@@ -51,4 +51,9 @@ em,
 i {
   font-style: normal;
 }
+.header .nav .nuxt-link-active:not(:first-child),
+.header .nav .nuxt-link-exact-active {
+  background: #409eff;
+  color: #fff !important;
+}
 </style>
