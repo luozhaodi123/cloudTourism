@@ -107,7 +107,12 @@ export default {
         }
       }).then(res => {
         console.log(res);
-        this.$message.success("验证码已发送，请收到信息后输入!");
+        const { code } = res.data;
+        this.$confirm(`模拟手机验证码:${code}`, "提示", {
+          confirmButtonText: "确定",
+          showCancelButton: false,
+          type: "warning"
+        });
       });
     },
     register() {

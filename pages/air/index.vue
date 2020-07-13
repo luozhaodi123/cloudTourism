@@ -12,10 +12,13 @@
         <el-row type="flex" justify="center" class="tabs">
           <span
             :class="{active: currentTab === index}"
-            v-for="(item, index) in [`单程`, `往返`]"
+            v-for="(item, index) in tabs"
             :key="index"
             @click="handleChangeTab(index)"
-          >{{item}}</span>
+          >
+            <i :class="item.icon"></i>
+            {{item.name}}
+          </span>
         </el-row>
 
         <!-- 显示单程的 -->
@@ -65,6 +68,10 @@ export default {
   },
   data() {
     return {
+      tabs: [
+        { icon: "iconfont icondancheng", name: "单程" },
+        { icon: "iconfont iconshuangxiang", name: "往返" }
+      ],
       currentTab: 0
     };
   },

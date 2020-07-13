@@ -4,10 +4,22 @@
       <span>换</span>
     </div>
     <el-form-item label="出发城市">
-      <el-input placeholder="请搜索出发城市"></el-input>
+      <!-- fetch-suggestions 返回输入建议的方法 -->
+      <!-- select 点击选中建议项时触发 -->
+      <el-autocomplete
+        :fetch-suggestions="queryDepartSearch"
+        placeholder="请搜索出发城市"
+        @select="handleDepartSelect"
+        class="el-autocomplete"
+      ></el-autocomplete>
     </el-form-item>
     <el-form-item label="到达城市">
-      <el-input placeholder="请搜索到达城市"></el-input>
+      <el-autocomplete
+        :fetch-suggestions="queryDepartSearch"
+        placeholder="请搜索到达城市"
+        @select="handleDestSelect"
+        class="el-autocomplete"
+      ></el-autocomplete>
     </el-form-item>
     <el-form-item label="出发时间">
       <el-col>
@@ -36,6 +48,9 @@ export default {
 .el-form {
   position: relative;
   padding: 15px 50px 15px 15px;
+  .el-autocomplete {
+    width: 100%;
+  }
   .switchWay {
     position: absolute;
     top: 34px;
