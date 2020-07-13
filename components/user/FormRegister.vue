@@ -1,24 +1,23 @@
 <template>
-  <el-form label-width="85px" ref="form" :model="form" :rules="rules">
+  <el-form label-width="80px" ref="form" :model="form" :rules="rules">
     <el-form-item label="手机号:" prop="username">
-      <el-input v-model="form.username" @focus="clearMsg('username')"></el-input>
+      <el-input v-model="form.username" placeholder="手机号" @focus="clearMsg('username')"></el-input>
     </el-form-item>
     <el-form-item label="验证码:" class="captcheItem" prop="captcha">
-      <div class="content">
-        <div class="input">
-          <el-input v-model="form.captcha" @focus="clearMsg('captcha')"></el-input>
-        </div>
-        <div class="captche" @click="sendCaptche">{{sendText}}</div>
-      </div>
+      <el-input v-model="form.captcha" placeholder="验证码" @focus="clearMsg('captcha')">
+        <template slot="append">
+          <el-button @click="sendCaptche">发送验证码</el-button>
+        </template>
+      </el-input>
     </el-form-item>
     <el-form-item label="昵称:" prop="nickname">
-      <el-input v-model="form.nickname" @focus="clearMsg('nickname')"></el-input>
+      <el-input v-model="form.nickname" placeholder="昵称" @focus="clearMsg('nickname')"></el-input>
     </el-form-item>
     <el-form-item label="密码:" prop="password">
-      <el-input v-model="form.password" @focus="clearMsg('password')"></el-input>
+      <el-input v-model="form.password" placeholder="密码" @focus="clearMsg('password')"></el-input>
     </el-form-item>
     <el-form-item label="确认密码:" prop="twicePwd">
-      <el-input v-model="form.twicePwd" @focus="clearMsg('twicePwd')"></el-input>
+      <el-input v-model="form.twicePwd" placeholder="确认密码" @focus="clearMsg('twicePwd')"></el-input>
     </el-form-item>
     <el-form-item class="btnWrapper">
       <el-button type="primary" @click="register">注册</el-button>
@@ -30,17 +29,13 @@
 <script>
 export default {
   data() {
-    var validatePass = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("请输入密码"));
-      } else {
-        if (this.form.twicePwd !== "") {
-          this.$refs.form.validateField("twicePwd");
-        }
-        callback();
-      }
-    };
-    var validatePass2 = (rule, value, callback) => {
+    var checkPassword = (rule, value, callback) => {
+      /* 
+        在这个校验函数内部，可以接收三个参数
+        1、规则对象本身
+        2、当前输入的值
+        3、放行的回调函数
+      */
       if (value === "") {
         callback(new Error("请再次输入密码"));
       } else if (value !== this.form.password) {
@@ -52,7 +47,7 @@ export default {
     };
     return {
       form: {
-        username: "14715906749",
+        username: "14315506049",
         nickname: "小白",
         captcha: "000000",
         password: "123456",
@@ -73,27 +68,10 @@ export default {
         nickname: [{ required: true, message: "请输入昵称", trigger: "blur" }],
         password: [
           { required: true, message: "请输入密码", trigger: "blur" },
-          {
-            min: 3,
-            max: 11,
-            message: "长度为 3 到 11 个字符",
-            trigger: "blur"
-          },
-          { validator: validatePass, trigger: "blur" }
+          { min: 3, max: 11, message: "长度为 3 到 11 个字符", trigger: "blur" }
         ],
-        twicePwd: [
-          { required: true, message: "请再次输入密码", trigger: "blur" },
-          {
-            min: 3,
-            max: 11,
-            message: "长度为 3 到 11 个字符",
-            trigger: "blur"
-          },
-          { validator: validatePass2, trigger: "blur" }
-        ]
-      },
-      twicePwd: "",
-      sendText: "发送验证码"
+        twicePwd: [{ validator: checkPassword, trigger: "blur" }]
+      }
     };
   },
   methods: {
@@ -103,7 +81,23 @@ export default {
     },
     // 发送验证码
     sendCaptche() {
-      this.$message.success("验证码已发送，请收到信息后输入!");
+      if (!this.form.username) {
+        this.$confirm("手机号码不能为空", "提示", {
+          confirmButtonText: "确定",
+          showCancelButton: false,
+          type: "warning"
+        });
+        return;
+      }
+
+      if (this.form.username.length !== 11) {
+        this.$confirm("手机号码格式错误", "提示", {
+          confirmButtonText: "确定",
+          showCancelButton: false,
+          type: "warning"
+        });
+        return;
+      }
       this.$axios({
         //   http://157.122.54.189:9095 线上服务器
         url: "/captchas",
@@ -113,34 +107,25 @@ export default {
         }
       }).then(res => {
         console.log(res);
+        this.$message.success("验证码已发送，请收到信息后输入!");
       });
     },
     register() {
       // 发送注册请求前，先整体校验一下注册表单
       this.$refs.form.validate((isValid, objNotValid) => {
         if (isValid) {
-          let form = {};
+          // 方式一
+          /* let form = {};
           for (var key in this.form) {
             if (key !== "twicePwd") {
               form[key] = this.form[key];
             }
-          }
-          console.log(form);
-          this.$axios({
-            url: "accounts/register",
-            method: "post",
-            data: form
-          }).then(res => {
-            console.log(res);
-            if (res.status === 200) {
+          } */
+          // console.log(form);
+          const { twicePwd, ...props } = this.form;
+          this.$store.dispatch("user/register", props).then(res => {
+            if (res && res.status === 200) {
               this.$message.success("注册成功");
-              this.form = {
-                username: "",
-                nickname: "",
-                captcha: "",
-                password: "",
-                twicePwd: ""
-              };
             }
           });
         } else {
@@ -153,21 +138,6 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.captcheItem {
-  .content {
-    display: flex;
-    .input {
-      width: 65%;
-    }
-    .captche {
-      width: 35%;
-      text-align: center;
-      font-size: 12px;
-      background-color: #ccc;
-      cursor: pointer;
-    }
-  }
-}
 .btnWrapper {
   display: flex;
   justify-content: space-between;

@@ -44,34 +44,20 @@ export default {
     clearMsg(propName) {
       this.$refs.form.clearValidate(propName);
     },
+    // 登录
     handleLogin() {
       // 表单中validate方法 在发送请求前进行表单的统一的校验
       this.$refs.form.validate((isValidate, objNotValid) => {
         // 第一个参数表示是否都通过校验
         // 第二个参数表示未通过校验哪一个的错误信息，对象来的
         if (isValidate) {
-          this.$axios({
-            url: "/accounts/login",
-            method: "post",
-            data: this.form
-          })
-            .then(res => {
-              console.log(res.data);
-              if (res.status == 200) {
-                this.$message.success("登录成功");
-                // 把登录成功返回的数据通过vuex，存起来
-                setTimeout(() => {
-                  // 需要调用 mutation 使用 $store.commit 方法
-                  // 传入两个参数, 第一个是仓库名/mutation 函数名的字符串, 第二个是额外数据
-                  this.$store.commit("user/setUser", res.data);
-                  console.log("token:" + this.$store.state.user.userInfo);
-                }, 1000);
-              }
-            })
-            .catch(err => {
-              console.log(err);
-              this.$message.error("登录失败，用户名或者密码无效");
-            });
+          // 使用vuex中的dispatch把数据带到vuex中actions来做数据持久化处理
+          this.$store.dispatch("user/login", this.form).then(res => {
+            // 成功提示
+            if (res && res.status === 200) {
+              this.$message.success("登录成功");
+            }
+          });
         } else {
           console.log(objNotValid);
         }

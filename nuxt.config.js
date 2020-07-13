@@ -36,7 +36,14 @@ export default {
   ** Plugins to load before mounting the App
   */
   plugins: [
-    '@/plugins/element-ui'
+    '@/plugins/element-ui',
+    {
+      // 这个src属性相当于之前的字符串，也就是插件文件地址
+      src: "@/plugins/loginLocalstorage",
+      // 把ssr的属性设置为false，禁止这个插件在服务端执行
+      ssr: false
+    },
+    "@/plugins/axios"
   ],
 
   /*
