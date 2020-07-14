@@ -8,6 +8,7 @@ export const state = () => ({
 })
 
 // mutations规定了对数据进行修改的方法
+// 注:mutations不能使用异步操作的函数，必须是同步函数
 export const mutations = {
     setUser(state, data) {
         // state 表示 state本身
