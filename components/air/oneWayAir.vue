@@ -71,7 +71,7 @@ export default {
           name: value
         }
       }).then(res => {
-        console.log(res.data);
+        // console.log(res.data);
         const suggestions = res.data.data.map(item => {
           return {
             // 城市名称不应该有市字,使用字符串中replace方法替换掉name中最后一个市字
@@ -83,6 +83,7 @@ export default {
         const sugItem = suggestions.filter(item => {
           return item.code;
         });
+        console.log(sugItem);
         return sugItem;
       });
     },
@@ -91,9 +92,13 @@ export default {
       if (value) {
         this.getCity(value).then(res => {
           // console.log(res);
-          showList(res);
-          //搜索得出建议选项的时候,默认将列表的第一项数据放入 form
-          this.form.departCode = res[0].code;
+          if (res.length > 0) {
+            showList(res);
+            //搜索得出建议选项的时候,默认将列表的第一项数据放入 form
+            this.form.departCode = res[0].code;
+          } else {
+            showList([{ value: "没有找到该城市" }]);
+          }
         });
       }
     },
@@ -101,9 +106,13 @@ export default {
       if (value) {
         this.getCity(value).then(res => {
           // console.log(res);
-          showList(res);
-          //搜索得出建议选项的时候,默认将列表的第一项数据放入 form
-          this.form.destCode = res[0].code;
+          if (res.length > 0) {
+            showList(res);
+            //搜索得出建议选项的时候,默认将列表的第一项数据放入 form
+            this.form.destCode = res[0].code;
+          } else {
+            showList([{ value: "没有找到该城市" }]);
+          }
         });
       }
     },
@@ -133,7 +142,8 @@ export default {
         }
       }
       // 处理用户不按常理输入的值
-      const form = {};
+      // 第一种方式
+      /* const form = {};
       for (var key in this.form) {
         let item = this.form[key];
         if (key == "departCity" && item.includes("市")) {
@@ -146,10 +156,19 @@ export default {
           form[key] = this.form[key];
         }
       }
-      console.log(form);
+      console.log(form); */
+      // 第二种方式
+      this.form = {
+        departCity: this.form.departCity.replace(/市$/, ""),
+        departCode: this.form.departCode,
+        destCity: this.form.destCity.replace(/市$/, ""),
+        destCode: this.form.destCode,
+        departDate: this.form.departDate
+      };
       this.$router.push({
         path: "/air/flights",
-        query: form
+        // query: form
+        query: this.form
       });
     },
     // 切换线路
