@@ -22,7 +22,7 @@
         </el-row>
 
         <!-- 显示单程的 -->
-        <OneWay v-if="currentTab == 0" />
+        <FlightForm v-if="currentTab == 0" />
         <!-- 显示往返的 -->
         <div v-else>往返</div>
       </div>
@@ -59,11 +59,11 @@
 </template>
 
 <script>
-import OneWay from "@/components/air/oneWayAir";
+import FlightForm from "@/components/air/flightForm";
 import SpecialTicket from "@/components/air/specialTicket";
 export default {
   components: {
-    OneWay,
+    FlightForm,
     SpecialTicket
   },
   data() {

@@ -166,20 +166,26 @@ export default {
         destCode: this.form.destCode,
         departDate: this.form.departDate
       };
+      this.$router.push({
+        path: "/air/flights",
+        // query: form
+        query: queryList
+      });
+
+      // 第一种方式
       // 发送搜索时，把历史记录存储在本地存储中
-      if (localStorage.getItem("history")) {
+      /* if (localStorage.getItem("history")) {
         const history = JSON.parse(localStorage.getItem("history"));
         history.unshift(queryList);
         localStorage.setItem("history", JSON.stringify(history));
       } else {
         this.history.unshift(queryList);
         localStorage.setItem("history", JSON.stringify(this.history));
-      }
-      this.$router.push({
-        path: "/air/flights",
-        // query: form
-        query: queryList
-      });
+      } */
+
+      // 第二种方式
+      // 在发送搜索时，将搜索记录通过vuex的方式存储在store中(持久化保存)
+      this.$store.commit("history/setHistory", queryList);
     },
     // 切换线路
     switchWay() {

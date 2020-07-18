@@ -31,12 +31,16 @@ export default {
     };
   },
   mounted() {
-    const history = JSON.parse(localStorage.getItem("history"));
+    // 第一种方式 本地存储
+    /* const history = JSON.parse(localStorage.getItem("history"));
     if (history.length > 10) {
       history = history.slice(0, 10);
     }
     this.history = history;
-    console.log(this.history);
+    console.log(this.history); */
+
+    // 第二种方式 vuex 中的仓库
+    this.history = this.$store.state.history.historyList;
   },
   methods: {
     select(item) {

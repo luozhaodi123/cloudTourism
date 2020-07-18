@@ -4,7 +4,7 @@
       <!-- 头部部分 -->
       <div class="main-left">
         <!-- 筛选组件 -->
-        <Filters :options="options" :flights="cacheFlightsList" @clicked="setFlightsList" />
+        <FlightFilters :options="options" :flights="cacheFlightsList" @clicked="setFlightsList" />
         <!-- 机票组件 -->
         <div class="ticketList">
           <!-- 标题 -->
@@ -23,9 +23,9 @@
             </el-col>
           </el-row>
           <!-- 列表 -->
-          <!-- <AirTicket :lists="item" :index="index" v-for="(item,index) in flightList.flights" :key="index" /> -->
+          <!-- <FlightRecom :lists="item" :index="index" v-for="(item,index) in flightList.flights" :key="index" /> -->
           <div v-if="flightList.flights">
-            <AirTicket :lists="item" v-for="item in dataList" :key="item.id" />
+            <FlightRecom :lists="item" v-for="item in dataList" :key="item.id" />
           </div>
           <div
             class="tips"
@@ -65,21 +65,21 @@
           <div class="stateNumber">免费客服电话: 4006345678转2</div>
         </div>
         <!-- 搜索记录组件 -->
-        <SearchRecord />
+        <FlightSearchRecord />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import AirTicket from "@/components/air/airTicket";
-import SearchRecord from "@/components/air/searchRecord";
-import Filters from "@/components/air/filters";
+import FlightRecom from "@/components/air/flightRecom";
+import FlightSearchRecord from "@/components/air/flightSearchRecord";
+import FlightFilters from "@/components/air/flightFilters";
 export default {
   components: {
-    AirTicket,
-    SearchRecord,
-    Filters
+    FlightRecom,
+    FlightSearchRecord,
+    FlightFilters
   },
   data() {
     return {
