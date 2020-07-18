@@ -85,6 +85,13 @@ export default {
     this.arrCity = this.$route.query.destCity;
     this.time = this.$route.query.departDate;
   },
+  watch: {
+    $route() {
+      this.depCity = this.$route.query.departCity;
+      this.arrCity = this.$route.query.destCity;
+      this.time = this.$route.query.departDate;
+    }
+  },
   methods: {
     // 总的筛选过滤器，主要是为了让多个过滤器都应该能够协同作用
     setTotalFilter() {
