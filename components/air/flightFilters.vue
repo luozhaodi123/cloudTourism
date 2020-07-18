@@ -208,6 +208,7 @@ export default {
       color: #669eff;
       border-radius: 14px;
       border: 1px solid #b3d8ff;
+      outline: none;
       &:hover {
         background-color: #669eff;
         color: #fff;

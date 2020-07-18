@@ -1,33 +1,35 @@
 <template>
   <div class="ticket">
     <!-- <div class="list" @click="handleClick(index)"> -->
-    <div class="list" @click="isShow=!isShow">
-      <el-row type="flex" class="message">
-        <el-col :span="6" class="tipOne">
-          <span>{{lists.airline_name}} {{lists.flight_no}}</span>
-        </el-col>
-        <el-col :span="12" class="tipTwo">
-          <el-row type="flex" justify="space-between">
-            <el-col :span="8">
-              <span class="time">{{lists.dep_time}}</span>
-              <div class="dress">{{lists.org_airport_name}} {{lists.org_airport_quay}}</div>
-            </el-col>
-            <el-col :span="8" class="tipThree">
-              <span>{{dealTime}}</span>
-            </el-col>
-            <el-col :span="8">
-              <span class="time">{{lists.arr_time}}</span>
-              <div class="dress">{{lists.dst_airport_name}} {{lists.dst_airport_quay}}</div>
-            </el-col>
-          </el-row>
-        </el-col>
-        <el-col :span="6" class="tipFive">
-          <span>
-            ￥
-            <i>{{lists.base_price}}</i>起
-          </span>
-        </el-col>
-      </el-row>
+    <div class="list">
+      <div class="list-item" @click="isShow=!isShow">
+        <el-row type="flex" class="message">
+          <el-col :span="6" class="tipOne">
+            <span>{{lists.airline_name}} {{lists.flight_no}}</span>
+          </el-col>
+          <el-col :span="12" class="tipTwo">
+            <el-row type="flex" justify="space-between">
+              <el-col :span="8">
+                <span class="time">{{lists.dep_time}}</span>
+                <div class="dress">{{lists.org_airport_name}} {{lists.org_airport_quay}}</div>
+              </el-col>
+              <el-col :span="8" class="tipThree">
+                <span>{{dealTime}}</span>
+              </el-col>
+              <el-col :span="8">
+                <span class="time">{{lists.arr_time}}</span>
+                <div class="dress">{{lists.dst_airport_name}} {{lists.dst_airport_quay}}</div>
+              </el-col>
+            </el-row>
+          </el-col>
+          <el-col :span="6" class="tipFive">
+            <span>
+              ￥
+              <i>{{lists.base_price}}</i>起
+            </span>
+          </el-col>
+        </el-row>
+      </div>
       <!-- 设置element中默认的过渡动画标签 el-collapse-transition -->
       <el-collapse-transition>
         <!-- <el-row type="flex" class="recommend" v-if="index == currentIndex && isShow"> -->
@@ -49,7 +51,7 @@
                 <span class="price">￥ {{item.org_settle_price}}</span>
               </el-col>
               <el-col :span="4">
-                <div class="selectBtn">选定</div>
+                <div class="selectBtn" @click="selectBtn({id:lists.id,seat_xid:item.seat_xid})">选定</div>
                 <p class="number" v-if="item.nums !='A'">剩余: {{item.nums}}</p>
               </el-col>
             </el-row>
@@ -123,6 +125,19 @@ export default {
       }
       this.currentIndex = index;
     } */
+
+    // 选定机票
+    selectBtn(item) {
+      // console.log("选定机票事件触发");
+      console.log(item);
+      this.$router.push({
+        path: "/air/order",
+        query: {
+          id: item.id,
+          seat_xid: item.seat_xid
+        }
+      });
+    }
   }
 };
 </script>
@@ -210,6 +225,7 @@ export default {
           background-color: #ffa500;
           color: #fff;
           border-radius: 5px;
+          cursor: pointer;
         }
         .number {
           font-size: 14px;
