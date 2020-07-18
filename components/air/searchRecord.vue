@@ -1,22 +1,50 @@
 <template>
   <div class="history">
     <h5 class="hisTitle">历史查询</h5>
-    <el-row type="flex" justify="space-between" class="statement">
-      <div class="info">
-        <div class="load">
-          上海
-          <span>-</span>
-          北京
+    <div>
+      <el-row
+        type="flex"
+        justify="space-between"
+        class="statement"
+        v-for="(item,index) in history"
+        :key="index"
+      >
+        <div class="info">
+          <div class="load">
+            {{item.departCity}}
+            <span>-</span>
+            {{item.destCity}}
+          </div>
+          <div class="hisDate">{{item.departDate}}</div>
         </div>
-        <div class="hisDate">2020-07-24</div>
-      </div>
-      <div class="select">选择</div>
-    </el-row>
+        <div class="select" @click="select(item)">选择</div>
+      </el-row>
+    </div>
   </div>
 </template>
 
 <script>
-export default {};
+export default {
+  data() {
+    return {
+      history: []
+    };
+  },
+  mounted() {
+    this.history = JSON.parse(localStorage.getItem("history"));
+    console.log(this.history);
+  },
+  methods: {
+    select(item) {
+      // console.log(item);
+      this.$router.push({
+        path: "/air/flights",
+        query: item
+      });
+      this.$emit("handleSearch", item);
+    }
+  }
+};
 </script>
 
 <style lang="less" scoped>
@@ -36,6 +64,7 @@ export default {};
     display: flex;
     align-items: center;
     padding: 10px 0;
+    cursor: pointer;
     .info {
       .load {
         margin-bottom: 4px;

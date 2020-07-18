@@ -3,59 +3,8 @@
     <div class="main">
       <!-- 头部部分 -->
       <div class="main-left">
-        <!-- 筛选 -->
-        <div class="filters">
-          <!-- 单程 -->
-          <div class="oneWay">
-            <div class="wayLeft">
-              <span class="label">单程:</span>
-              <span class="load">上海</span>
-              <span>-</span>
-              <span class="load">广州</span>
-              <span>/</span>
-              <span class="load date">2020-07-25</span>
-            </div>
-            <div class="wayRight">
-              <el-select v-model="placeValue" placeholder="起飞机场">
-                <el-option
-                  v-for="item in placeOpt"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                ></el-option>
-              </el-select>
-              <el-select v-model="dateValue" placeholder="起飞时间">
-                <el-option
-                  v-for="item in dateOpt"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                ></el-option>
-              </el-select>
-              <el-select v-model="companyValue" placeholder="航空公司">
-                <el-option
-                  v-for="item in companyOpt"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                ></el-option>
-              </el-select>
-              <el-select v-model="moduleValue" placeholder="机型">
-                <el-option
-                  v-for="item in moduleOpt"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                ></el-option>
-              </el-select>
-            </div>
-          </div>
-          <!-- 筛选 -->
-          <div class="select">
-            <span class="label">筛选:</span>
-            <button class="btnCancel">撤销</button>
-          </div>
-        </div>
+        <!-- 筛选组件 -->
+        <Filters :options="options" :flights="cacheFlightsList" @clicked="setFlightsList" />
         <!-- 机票组件 -->
         <div class="ticketList">
           <!-- 标题 -->
@@ -74,20 +23,23 @@
             </el-col>
           </el-row>
           <!-- 列表 -->
-          <AirTicket :lists="item" :index="index" v-for="(item,index) in flightList" :key="index" />
+          <!-- <AirTicket :lists="item" :index="index" v-for="(item,index) in flightList.flights" :key="index" /> -->
+          <div v-if="flightList.flights">
+            <AirTicket :lists="item" v-for="item in dataList" :key="item.id" />
+          </div>
+          <div class="tips" v-if="flightList.flights && flightList.flights.length == 0">暂时没有数据</div>
         </div>
         <!-- 分页组件 -->
-        <!-- <div class="pagination">
+        <div class="pagination">
           <el-pagination
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-            :current-page="currentPage4"
+            @size-change="sizeChange"
+            @current-change="currentChange"
             :page-sizes="[5, 10, 15, 20]"
-            :page-size="5"
+            :page-size="pageSize"
             layout="total, sizes, prev, pager, next, jumper"
             :total="total"
           ></el-pagination>
-        </div>-->
+        </div>
       </div>
       <!-- 组件 -->
       <div class="main-right">
@@ -110,7 +62,7 @@
           <div class="stateNumber">免费客服电话: 4006345678转2</div>
         </div>
         <!-- 搜索记录组件 -->
-        <SearchRecord />
+        <SearchRecord @handleSearch="searchList" />
       </div>
     </div>
   </div>
@@ -119,104 +71,96 @@
 <script>
 import AirTicket from "@/components/air/airTicket";
 import SearchRecord from "@/components/air/searchRecord";
+import Filters from "@/components/air/filters";
 export default {
   components: {
     AirTicket,
-    SearchRecord
+    SearchRecord,
+    Filters
   },
   data() {
     return {
-      placeOpt: [
-        {
-          value: "选项1",
-          label: "浦东机场"
-        },
-        {
-          value: "选项2",
-          label: "虹桥机场"
-        }
-      ],
-      dateOpt: [
-        {
-          value: "选项1",
-          label: "0:00 - 06:00"
-        },
-        {
-          value: "选项2",
-          label: "06:00 - 12:00"
-        },
-        {
-          value: "选项3",
-          label: "12:00 - 13:00"
-        },
-        {
-          value: "选项4",
-          label: "13:00 - 19:00"
-        },
-        {
-          value: "选项5",
-          label: "19:00 - 24:00"
-        }
-      ],
-      companyOpt: [
-        {
-          value: "选项1",
-          label: "南航"
-        },
-        {
-          value: "选项2",
-          label: "上航"
-        },
-        {
-          value: "选项3",
-          label: "海航"
-        },
-        {
-          value: "选项4",
-          label: "东航"
-        },
-        {
-          value: "选项5",
-          label: "国航"
-        },
-        {
-          value: "选项6",
-          label: "吉祥"
-        }
-      ],
-      moduleOpt: [
-        {
-          value: "选项1",
-          label: "大"
-        },
-        {
-          value: "选项2",
-          label: "中"
-        },
-        {
-          value: "选项3",
-          label: "小"
-        }
-      ],
-      placeValue: "",
-      dateValue: "",
-      companyValue: "",
-      moduleValue: "",
       // 搜索回来的飞机票
-      flightList: [],
+      flightList: {},
       // 总的条数
-      total: 0
+      total: 0,
+      // 存储页码发生改变时的变量
+      // dataList: [],
+      pageIndex: 1,
+      pageSize: 10,
+      // 筛选
+      options: {},
+      // 缓存原始数据
+      cacheFlightsList: [],
+      // 历史记录
+      history: []
     };
   },
+  computed: {
+    // 使用计算属性监听dataList的变化
+    dataList() {
+      const first = (this.pageIndex - 1) * this.pageSize;
+      const last = first + this.pageSize;
+      return this.flightList.flights.slice(first, last);
+    },
+    // 监听页面路由的变化
+    queryItem() {
+      return this.$route.query;
+    }
+  },
   mounted() {
+    // 获取搜索的机票列表
     this.$axios({
       url: "/airs",
-      params: this.$route.query
+      // params: this.$route.query
+      params: this.queryItem
     }).then(res => {
       console.log(res.data);
-      this.flightList = res.data.flights;
       this.total = res.data.total;
+      this.flightList = res.data;
+      this.options = res.data.options;
+      this.cacheFlightsList = res.data.flights;
     });
+    // 调用存储搜索记录的函数
+    this.setHistory();
+  },
+  methods: {
+    // 当前页码发生改变时，同时改变机票列表的数量
+    currentChange(index) {
+      // console.log(index);
+      // 初始值 = pageIndex - 1 * pageSize
+      // 结束值 = 初始值 + pageSize(不包含)
+      this.pageIndex = index;
+    },
+    // 当前页显示机票的size发生改变时，同时改变机票列表的数量
+    sizeChange(size) {
+      // console.log(size);
+      this.pageSize = size;
+    },
+    // 筛选事件
+    setFlightsList(newList) {
+      // console.log("父组件筛选事件触发");
+      console.log(newList);
+      this.flightList.flights = newList;
+      // 联动翻页数据实时更新
+      this.total = this.flightList.flights.length;
+    },
+    // 将搜索的记录存储在本地存储中
+    setHistory() {
+      // console.log(this.$route.query);
+      const load = {
+        ...this.$route.query
+      };
+      if (localStorage.getItem("history")) {
+        const history = JSON.parse(localStorage.getItem("history"));
+        history.push(load);
+        localStorage.setItem("history", JSON.stringify(history));
+      } else {
+        this.history.push(load);
+        localStorage.setItem("history", JSON.stringify(this.history));
+      }
+    },
+    searchList(item) {}
   }
 };
 </script>
@@ -231,57 +175,6 @@ export default {
     .main-left {
       position: relative;
       width: 745px;
-      .filters {
-        width: 745px;
-        margin-bottom: 18px;
-        font-size: 14px;
-        .oneWay {
-          display: flex;
-          align-items: center;
-          margin-bottom: 10px;
-          .wayLeft {
-            .load {
-              margin: 0 2px;
-            }
-          }
-          .wayRight {
-            margin-left: 54px;
-            .el-select {
-              width: 115px;
-              height: 28px;
-              /deep/.el-input {
-                height: 28px;
-                /deep/.el-input__inner {
-                  height: 28px !important;
-                  line-height: 28px;
-                  font-size: 12px;
-                }
-                .el-select__caret {
-                  line-height: 28px;
-                }
-              }
-            }
-          }
-        }
-        .select {
-          .btnCancel {
-            width: 56px;
-            height: 28px;
-            font-size: 12px;
-            background-color: #ecf5ff;
-            color: #669eff;
-            border-radius: 14px;
-            border: 1px solid #b3d8ff;
-            &:hover {
-              background-color: #669eff;
-              color: #fff;
-            }
-          }
-        }
-        .label {
-          margin-right: 10px;
-        }
-      }
       .ticketList {
         .stateMent {
           height: 32px;
@@ -292,6 +185,9 @@ export default {
           background-color: #f6f6f6;
           color: #666;
           font-size: 12px;
+        }
+        .tips {
+          margin: 10px 0;
         }
       }
     }

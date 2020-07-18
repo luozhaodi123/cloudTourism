@@ -6,7 +6,7 @@
       >
         <img :src="$axios.defaults.baseURL+item.cover" alt />
         <div class="layer-bar">
-          <span class="loadBar">{{item.departCity}}}-{{item.destCity}}</span>
+          <span class="loadBar">{{item.departCity}}-{{item.destCity}}</span>
           <span class="price">${{item.price}}</span>
         </div>
       </nuxt-link>

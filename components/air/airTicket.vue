@@ -1,6 +1,7 @@
 <template>
   <div class="ticket">
-    <div class="list" @click="handleClick(index)">
+    <!-- <div class="list" @click="handleClick(index)"> -->
+    <div class="list" @click="isShow=!isShow">
       <el-row type="flex" class="message">
         <el-col :span="6" class="tipOne">
           <span>{{lists.airline_name}} {{lists.flight_no}}</span>
@@ -27,30 +28,34 @@
           </span>
         </el-col>
       </el-row>
-      <el-row type="flex" class="recommend" v-if="index == currentIndex && isShow">
-        <el-col :span="4" class="recom-left">低价推荐</el-col>
-        <el-col :span="20">
-          <el-row
-            type="flex"
-            class="recom-right"
-            v-for="(item,index) in lists.seat_infos"
-            :key="index"
-          >
-            <el-col :span="16">
-              <span class="model">{{item.group_name}}</span>
-              <span>|</span>
-              {{item.supplierName}}
-            </el-col>
-            <el-col :span="4">
-              <span class="price">￥ {{item.org_settle_price}}</span>
-            </el-col>
-            <el-col :span="4">
-              <div class="selectBtn">选定</div>
-              <p class="number" v-if="item.nums !='A'">剩余: {{item.nums}}</p>
-            </el-col>
-          </el-row>
-        </el-col>
-      </el-row>
+      <!-- 设置element中默认的过渡动画标签 el-collapse-transition -->
+      <el-collapse-transition>
+        <!-- <el-row type="flex" class="recommend" v-if="index == currentIndex && isShow"> -->
+        <el-row type="flex" class="recommend" v-if="isShow">
+          <el-col :span="4" class="recom-left">低价推荐</el-col>
+          <el-col :span="20">
+            <el-row
+              type="flex"
+              class="recom-right"
+              v-for="(item,index) in lists.seat_infos"
+              :key="index"
+            >
+              <el-col :span="16">
+                <span class="model">{{item.group_name}}</span>
+                <span>|</span>
+                {{item.supplierName}}
+              </el-col>
+              <el-col :span="4">
+                <span class="price">￥ {{item.org_settle_price}}</span>
+              </el-col>
+              <el-col :span="4">
+                <div class="selectBtn">选定</div>
+                <p class="number" v-if="item.nums !='A'">剩余: {{item.nums}}</p>
+              </el-col>
+            </el-row>
+          </el-col>
+        </el-row>
+      </el-collapse-transition>
     </div>
   </div>
 </template>
@@ -71,11 +76,12 @@ export default {
     dealTime() {
       let arrTime = this.lists.arr_time.split(":");
       let depTime = this.lists.dep_time.split(":");
-      let arrHour = arrTime[0];
+
+      // 第一种方式 小时减小时 分钟减分钟
+      /* let arrHour = arrTime[0];
       let arrMine = arrTime[1];
       let depHour = depTime[0];
       let depMine = depTime[1];
-
       // 到达时间 00   到达分钟大于开始分钟
       if (arrHour == "00" && arrMine > depMine) {
         arrHour = 24;
@@ -92,18 +98,23 @@ export default {
         arrMine = parseInt(arrMine) + 60;
         console.log(arrHour, arrMine);
       }
-
       const resultHour = arrHour - depHour;
       const resultMine = arrMine - depMine;
-      // console.log(resultHour, resultMine);
-      const result = resultHour + "小时" + resultMine + "分";
-      return result;
-      console.log(result);
+      return resultHour + "小时" + resultMine + "分"; */
+
+      //第二种方式 转换成分钟进行计算
+      let arrMine = Number(arrTime[0] * 60) + Number(arrTime[1]);
+      let depMine = Number(depTime[0] * 60) + Number(depTime[1]);
+      let time = arrMine - depMine;
+      if (time < 0) {
+        time = arrMine + 24 * 60 - depMine;
+      }
+      return Math.floor(time / 60) + "小时" + (time % 60) + "分";
     }
   },
   methods: {
     // 实现点击对应的机票列表的显示与隐藏
-    handleClick(index) {
+    /* handleClick(index) {
       console.log(index);
       if (this.isShow && this.currentIndex == index) {
         this.isShow = false;
@@ -111,7 +122,7 @@ export default {
         this.isShow = true;
       }
       this.currentIndex = index;
-    }
+    } */
   }
 };
 </script>
@@ -166,12 +177,14 @@ export default {
       }
     }
     .recommend {
-      align-items: center;
+      // align-items: center;
       padding: 0 20px;
       background-color: #f6f6f6;
       .recom-left {
         font-size: 14px;
         color: #333;
+        display: flex;
+        align-items: center;
       }
       .recom-right {
         display: flex;
