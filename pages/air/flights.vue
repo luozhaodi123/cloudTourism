@@ -27,7 +27,10 @@
           <div v-if="flightList.flights">
             <AirTicket :lists="item" v-for="item in dataList" :key="item.id" />
           </div>
-          <div class="tips" v-if="flightList.flights && flightList.flights.length == 0">暂时没有数据</div>
+          <div
+            class="tips"
+            v-if="flightList.flights && flightList.flights.length == 0"
+          >暂时无符合的机票信息，请重新搜索</div>
         </div>
         <!-- 分页组件 -->
         <div class="pagination">
@@ -62,7 +65,7 @@
           <div class="stateNumber">免费客服电话: 4006345678转2</div>
         </div>
         <!-- 搜索记录组件 -->
-        <SearchRecord @handleSearch="searchList" />
+        <SearchRecord />
       </div>
     </div>
   </div>
@@ -99,32 +102,39 @@ export default {
   computed: {
     // 使用计算属性监听dataList的变化
     dataList() {
+      if (!this.flightList.flights) {
+        return [];
+      }
       const first = (this.pageIndex - 1) * this.pageSize;
       const last = first + this.pageSize;
       return this.flightList.flights.slice(first, last);
-    },
-    // 监听页面路由的变化
-    queryItem() {
-      return this.$route.query;
+    }
+  },
+  watch: {
+    // 监听路由的变化，同时发送请求获取机票数据
+    $route() {
+      console.log("路由发生变化");
+      this.loadFlightList();
     }
   },
   mounted() {
     // 获取搜索的机票列表
-    this.$axios({
-      url: "/airs",
-      // params: this.$route.query
-      params: this.queryItem
-    }).then(res => {
-      console.log(res.data);
-      this.total = res.data.total;
-      this.flightList = res.data;
-      this.options = res.data.options;
-      this.cacheFlightsList = res.data.flights;
-    });
-    // 调用存储搜索记录的函数
-    this.setHistory();
+    this.loadFlightList();
   },
   methods: {
+    // 封装加载获取机票列表的请求函数
+    loadFlightList() {
+      this.$axios({
+        url: "/airs",
+        params: this.$route.query
+      }).then(res => {
+        console.log(res.data);
+        this.total = res.data.total;
+        this.flightList = res.data;
+        this.options = res.data.options;
+        this.cacheFlightsList = res.data.flights;
+      });
+    },
     // 当前页码发生改变时，同时改变机票列表的数量
     currentChange(index) {
       // console.log(index);
@@ -144,23 +154,7 @@ export default {
       this.flightList.flights = newList;
       // 联动翻页数据实时更新
       this.total = this.flightList.flights.length;
-    },
-    // 将搜索的记录存储在本地存储中
-    setHistory() {
-      // console.log(this.$route.query);
-      const load = {
-        ...this.$route.query
-      };
-      if (localStorage.getItem("history")) {
-        const history = JSON.parse(localStorage.getItem("history"));
-        history.push(load);
-        localStorage.setItem("history", JSON.stringify(history));
-      } else {
-        this.history.push(load);
-        localStorage.setItem("history", JSON.stringify(this.history));
-      }
-    },
-    searchList(item) {}
+    }
   }
 };
 </script>

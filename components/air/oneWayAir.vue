@@ -59,7 +59,8 @@ export default {
         destCity: "",
         destCode: "",
         departDate: ""
-      }
+      },
+      history: []
     };
   },
   methods: {
@@ -158,17 +159,26 @@ export default {
       }
       console.log(form); */
       // 第二种方式
-      this.form = {
+      const queryList = {
         departCity: this.form.departCity.replace(/市$/, ""),
         departCode: this.form.departCode,
         destCity: this.form.destCity.replace(/市$/, ""),
         destCode: this.form.destCode,
         departDate: this.form.departDate
       };
+      // 发送搜索时，把历史记录存储在本地存储中
+      if (localStorage.getItem("history")) {
+        const history = JSON.parse(localStorage.getItem("history"));
+        history.unshift(queryList);
+        localStorage.setItem("history", JSON.stringify(history));
+      } else {
+        this.history.unshift(queryList);
+        localStorage.setItem("history", JSON.stringify(this.history));
+      }
       this.$router.push({
         path: "/air/flights",
         // query: form
-        query: this.form
+        query: queryList
       });
     },
     // 切换线路

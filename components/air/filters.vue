@@ -99,7 +99,7 @@ export default {
           const depTime = Number(this.dateValue.split(",")[0]);
           const arrTime = Number(this.dateValue.split(",")[1]);
           const moduleTime = Number(item.dep_time.split(":")[0]);
-          return moduleTime > depTime && moduleTime < arrTime;
+          return moduleTime >= depTime && moduleTime < arrTime;
         });
       }
       if (this.companyValue) {

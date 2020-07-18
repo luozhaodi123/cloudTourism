@@ -31,7 +31,11 @@ export default {
     };
   },
   mounted() {
-    this.history = JSON.parse(localStorage.getItem("history"));
+    const history = JSON.parse(localStorage.getItem("history"));
+    if (history.length > 10) {
+      history = history.slice(0, 10);
+    }
+    this.history = history;
     console.log(this.history);
   },
   methods: {
@@ -41,7 +45,6 @@ export default {
         path: "/air/flights",
         query: item
       });
-      this.$emit("handleSearch", item);
     }
   }
 };
