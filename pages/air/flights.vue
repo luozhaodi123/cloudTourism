@@ -113,7 +113,7 @@ export default {
   watch: {
     // 监听路由的变化，同时发送请求获取机票数据
     $route() {
-      console.log("路由发生变化");
+      // console.log("路由发生变化");
       this.loadFlightList();
     }
   },

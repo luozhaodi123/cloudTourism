@@ -55,7 +55,13 @@ export default {
           this.$store.dispatch("user/login", this.form).then(res => {
             // 成功提示
             if (res && res.status === 200) {
-              this.$message.success("登录成功");
+              if (this.$store.state.user.tags.flag) {
+                this.$message.success("已成功登录正在返回订单页");
+                this.$router.back();
+              } else {
+                this.$message.success("登录成功");
+                this.$router.replace("/");
+              }
             }
           });
         } else {

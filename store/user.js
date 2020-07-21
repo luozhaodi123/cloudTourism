@@ -4,6 +4,10 @@ export const state = () => ({
     userInfo: {
         token: "",
         user: {}
+    },
+    // 标记
+    tags: {
+        flag: false
     }
 })
 
@@ -14,6 +18,9 @@ export const mutations = {
         // state 表示 state本身
         // data 表示外面调用时要传入的数据
         state.userInfo = data;
+    },
+    setTag(state, data) {
+        state.tags.flag = data;
     }
 }
 
