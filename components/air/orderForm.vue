@@ -23,8 +23,8 @@
               v-model="item.username"
               @focus="clearMsg(`user[${index}].username`)"
             >
-              <el-select slot="prepend" value="1" placeholder="请选择" class="select">
-                <el-option label="成人" value="1" :checked="true"></el-option>
+              <el-select slot="prepend" v-model="valueOne" placeholder="请选择" class="select">
+                <el-option label="成人" value="1"></el-option>
                 <el-option label="儿童" value="2"></el-option>
               </el-select>
             </el-input>
@@ -45,8 +45,8 @@
             </el-row>
             <el-row type="flex">
               <el-input placeholder="证件号码" v-model="item.id" @focus="clearMsg(`user[${index}].id`)">
-                <el-select slot="prepend" value="1" placeholder="请选择" class="select">
-                  <el-option label="身份证" value="1" :checked="true"></el-option>
+                <el-select slot="prepend" v-model="valueTwo" placeholder="请选择" class="select">
+                  <el-option label="身份证" value="1"></el-option>
                   <el-option label="护照" value="2"></el-option>
                 </el-select>
               </el-input>
@@ -107,6 +107,8 @@ export default {
   props: ["orderData"],
   data() {
     return {
+      valueOne: "1",
+      valueTwo: "1",
       user: [
         {
           username: "小彬彬",
