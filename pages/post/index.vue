@@ -5,7 +5,7 @@
       <div class="aside">
         <Aside v-if="data" :recomData="data" />
       </div>
-      <!-- 右侧搜索栏 -->
+      <!-- 右侧搜索栏已经攻略组件 -->
       <div class="search">
         <Search />
       </div>
@@ -27,10 +27,11 @@ export default {
     };
   },
   created() {
+    // 获取推荐城市列表
     this.$axios({
       url: "/posts/cities"
     }).then(res => {
-      console.log(res.data);
+      // console.log(res.data);
       this.data = res.data.data;
     });
   }
