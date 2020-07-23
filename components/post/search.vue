@@ -29,7 +29,7 @@
             <div class="imgBox">
               <img :src="item.images[0]" alt />
             </div>
-            <div>
+            <div class="oneContBox">
               <h2 class="title">
                 <a href="#">{{item.title}}</a>
               </h2>
@@ -88,6 +88,15 @@
       </div>
       <div v-else class="tips">暂时还没有该城市的游玩攻略哦</div>
     </div>
+    <!-- 分页组件 -->
+    <el-pagination
+      @size-change="sizeChange"
+      @current-change="currentChange"
+      :page-sizes="[3, 4, 10, 15]"
+      :page-size="pageSize"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="total"
+    ></el-pagination>
   </div>
 </template>
 
@@ -96,34 +105,36 @@ export default {
   data() {
     return {
       searchValue: "",
-      articles: []
+      // articles: [],
+      dataList: [],
+      total: 0,
+      pageIndex: 1,
+      pageSize: 3
     };
   },
   created() {
+    // 获取游玩攻略数据
     this.$axios({
-      url: "/posts",
-      query: {
-        star: 0,
-        limit: 3
-      }
+      url: "/posts"
     }).then(res => {
-      // console.log(res.data);
-      this.articles = res.data.data;
+      console.log(res.data);
+      this.dataList = res.data.data;
+      this.total = res.data.total;
     });
   },
-  watch: {
-    "this.articles": {
-      handler() {
-        console.log("获取回来的文章数据发生变化了");
-      },
-      immediate: true
+  computed: {
+    articles() {
+      const firstIndex = (this.pageIndex - 1) * this.pageSize;
+      const lastIndex = firstIndex + this.pageSize;
+      return this.dataList.slice(firstIndex, lastIndex);
     }
   },
   methods: {
+    // 搜索游玩攻略数据
     searchArticle() {
-      if(!this.searchValue) {
+      if (!this.searchValue) {
         this.$message("搜索游玩攻略关键词不能为空，请输入");
-        return
+        return;
       }
       this.$axios({
         url: "/posts",
@@ -132,12 +143,19 @@ export default {
         }
       }).then(res => {
         console.log(res.data);
-        this.articles = res.data.data;
+        this.dataList = res.data.data;
+        this.total = res.data.total;
       });
     },
     searchRecom(value) {
       this.searchValue = value;
       this.searchArticle();
+    },
+    currentChange(index) {
+      this.pageIndex = index;
+    },
+    sizeChange(size) {
+      this.pageSize = size;
     }
   }
 };
@@ -202,41 +220,48 @@ export default {
         margin-right: 10px;
         cursor: pointer;
       }
-      .title a {
-        display: block;
-        font-size: 18px;
-        font-weight: normal;
-        &:hover {
-          color: orange;
-        }
-      }
-      .content {
-        display: -webkit-box;
-        word-break: break-all;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 3;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        margin: 10px 0;
-        font-size: 14px;
-        color: #666;
-        cursor: pointer;
-      }
-      .footer {
-        display: flex;
-        justify-content: space-between;
-        .user {
-          font-size: 12px;
-          img {
-            width: 16px;
-            height: 16px;
-            margin: 5px;
-            vertical-align: middle;
+      .oneContBox {
+        position: relative;
+        .title a {
+          display: block;
+          font-size: 18px;
+          font-weight: normal;
+          &:hover {
+            color: orange;
           }
         }
-        .good {
-          font-size: 16px;
-          color: orange;
+        .content {
+          display: -webkit-box;
+          word-break: break-all;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 3;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          margin: 10px 0;
+          font-size: 14px;
+          color: #666;
+          cursor: pointer;
+        }
+        .footer {
+          position: absolute;
+          left: 0;
+          bottom: 0;
+          width: 100%;
+          .user {
+            float: left;
+            font-size: 12px;
+            img {
+              width: 16px;
+              height: 16px;
+              margin: 5px;
+              vertical-align: middle;
+            }
+          }
+          .good {
+            float: right;
+            font-size: 16px;
+            color: orange;
+          }
         }
       }
     }
@@ -293,6 +318,10 @@ export default {
     .tips {
       padding: 10px 0;
     }
+  }
+  .el-pagination {
+    text-align: center;
+    margin: 10px 0;
   }
 }
 </style>
