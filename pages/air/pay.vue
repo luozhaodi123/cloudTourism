@@ -53,14 +53,8 @@ export default {
             QRCode.toCanvas(stage, res.data.payInfo.code_url, {
               width: 200
             });
-            // 开启定时器
-            this.time = setInterval(async () => {
-              const isResolve = await this.isPay();
-              if (isResolve) {
-                clearInterval(this.time);
-                return;
-              }
-            }, 3000);
+            // 检查是否已经支付
+            this.isPay();
           });
         }
       },
@@ -81,13 +75,43 @@ export default {
           out_trade_no: this.orderData.orderNo
         }
       }).then(res => {
-        // console.log(res.data);
-        if (res.data.statusTxt == "支付完成") {
-          this.$message.success("订单支付成功");
-          return Promise.resolve(true);
+        console.log(res.data);
+        if (res.data.trade_state == "NOTPAY") {
+          // 开启定时器
+          this.time = setTimeout(() => {
+            this.isPay();
+          }, 2000);
+        } else {
+          getPayState(res.data.trade_state);
         }
-        return Promise.resolve(false);
       });
+    },
+    getPayState(state) {
+      switch (state) {
+        case "SUCCESS":
+          this.$message("支付成功");
+          break;
+        case "REFUND":
+          this.$message("转入退款");
+          break;
+        case "NOTPAY":
+          this.$message("未支付");
+          break;
+        case "CLOSED":
+          this.$message("已关闭");
+          break;
+        case "REVOKED":
+          this.$message("已撤销");
+          break;
+        case "USERPAYING":
+          this.$message("用户支付中");
+          break;
+        case "PAYERROR":
+          this.$message("支付失败");
+          break;
+        default:
+          break;
+      }
     }
   },
   destroyed() {

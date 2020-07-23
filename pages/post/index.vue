@@ -1,10 +1,42 @@
 <template>
-  <div>旅游攻略</div>
+  <div class="container">
+    <div class="main">
+      <!-- 左侧侧边栏 -->
+      <div class="aside">
+        <Aside />
+      </div>
+      <!-- 右侧搜索栏 -->
+      <div class="search">
+        <Search />
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
-export default {};
+import Aside from "@/components/post/aside";
+import Search from "@/components/post/search";
+export default {
+  components: {
+    Aside,
+    Search
+  }
+};
 </script>
 
 <style lang="less" scoped>
+.container {
+  .main {
+    width: 1000px;
+    margin: 20px auto;
+    display: flex;
+    justify-content: space-between;
+  }
+  .aside {
+    widows: 260px;
+  }
+  .search {
+    width: 700px;
+  }
+}
 </style>
