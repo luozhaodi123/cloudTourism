@@ -3,7 +3,7 @@
     <div class="main">
       <!-- 左侧侧边栏 -->
       <div class="aside">
-        <Aside />
+        <Aside v-if="data" :recomData="data" />
       </div>
       <!-- 右侧搜索栏 -->
       <div class="search">
@@ -20,6 +20,19 @@ export default {
   components: {
     Aside,
     Search
+  },
+  data() {
+    return {
+      data: null
+    };
+  },
+  created() {
+    this.$axios({
+      url: "/posts/cities"
+    }).then(res => {
+      console.log(res.data);
+      this.data = res.data.data;
+    });
   }
 };
 </script>
