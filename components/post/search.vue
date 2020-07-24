@@ -15,7 +15,7 @@
     <!-- 写游记标题 -->
     <el-row type="flex" justify="space-between" align="middle" class="strategy">
       <h2>推荐攻略</h2>
-      <el-button type="primary">
+      <el-button type="primary" @click="$router.push('/post/create')">
         <i class="el-icon-edit"></i>
         写游记
       </el-button>
@@ -25,7 +25,7 @@
       <div v-if="articles.length>0">
         <div class="article" v-for="item in articles" :key="item.id">
           <!-- 单图片 -->
-          <el-row v-if="item.images.length<3" class="oneArticle" type="flex">
+          <el-row v-if="item.images.length>0&&item.images.length<3" class="oneArticle" type="flex">
             <div class="imgBox">
               <img :src="item.images[0]" alt />
             </div>
@@ -45,7 +45,7 @@
                   />
                   {{item.account.nickname}}
                   <i class="el-icon-view"></i>
-                  {{item.watch}}
+                  {{item.watch>0?item.watch:0}}
                 </div>
                 <div class="good">{{item.like>0?item.like:0}} 赞</div>
               </div>
@@ -109,14 +109,14 @@ export default {
       dataList: [],
       total: 0,
       pageIndex: 1,
-      pageSize: 3
+      pageSize: 3,
     };
   },
   created() {
     // 获取游玩攻略数据
     this.$axios({
-      url: "/posts"
-    }).then(res => {
+      url: "/posts",
+    }).then((res) => {
       console.log(res.data);
       this.dataList = res.data.data;
       this.total = res.data.total;
@@ -127,7 +127,7 @@ export default {
       const firstIndex = (this.pageIndex - 1) * this.pageSize;
       const lastIndex = firstIndex + this.pageSize;
       return this.dataList.slice(firstIndex, lastIndex);
-    }
+    },
   },
   methods: {
     // 搜索游玩攻略数据
@@ -139,9 +139,9 @@ export default {
       this.$axios({
         url: "/posts",
         params: {
-          city: this.searchValue
-        }
-      }).then(res => {
+          city: this.searchValue,
+        },
+      }).then((res) => {
         console.log(res.data);
         this.dataList = res.data.data;
         this.total = res.data.total;
@@ -156,8 +156,8 @@ export default {
     },
     sizeChange(size) {
       this.pageSize = size;
-    }
-  }
+    },
+  },
 };
 </script>
 

@@ -27,8 +27,16 @@
 export default {
   data() {
     return {
-      history: []
+      history: [],
     };
+  },
+  watch: {
+    "$store.state.history.historyList": {
+      handler() {
+        this.history = this.$store.state.history.historyList;
+      },
+      immediate: true,
+    },
   },
   mounted() {
     // 第一种方式 本地存储
@@ -38,19 +46,21 @@ export default {
     }
     this.history = history;
     console.log(this.history); */
-
     // 第二种方式 vuex 中的仓库
-    this.history = this.$store.state.history.historyList;
+    // 1. 如果是别的页面进来, vuex 本来就有, 第一次执行就得出结果
+    // 2. 如果是刷新, 一进来会执行一次, 发现没数据, 不会执行
+    // 等到 vuex 被本地储存恢复, 发生变化,再次执行, 出现数据
+    // this.history = this.$store.state.history.historyList;
   },
   methods: {
     select(item) {
       // console.log(item);
       this.$router.push({
         path: "/air/flights",
-        query: item
+        query: item,
       });
-    }
-  }
+    },
+  },
 };
 </script>
 

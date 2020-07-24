@@ -43,7 +43,11 @@ export default {
       // 把ssr的属性设置为false，禁止这个插件在服务端执行
       ssr: false
     },
-    "@/plugins/axios"
+    "@/plugins/axios",
+    {
+      src: "@/plugins/editor",
+      ssr: false
+    }
   ],
 
   /*
