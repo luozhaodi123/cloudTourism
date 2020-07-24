@@ -19,22 +19,22 @@ import Search from "@/components/post/search";
 export default {
   components: {
     Aside,
-    Search
+    Search,
   },
   data() {
     return {
-      data: null
+      data: null,
     };
   },
   created() {
     // 获取推荐城市列表
     this.$axios({
-      url: "/posts/cities"
-    }).then(res => {
-      // console.log(res.data);
+      url: "/posts/cities",
+    }).then((res) => {
+      console.log(res.data);
       this.data = res.data.data;
     });
-  }
+  },
 };
 </script>
 

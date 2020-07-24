@@ -1,21 +1,30 @@
 <template>
   <div class="post">
-    <div class="post-aside">
+    <div class="post-aside" @mouseleave="isHide">
       <div class="aside-main">
-        <div class="main-item" v-for="(item,index) in recomData" :key="index">
+        <div
+          class="main-item"
+          ref="recomDom"
+          @mouseenter="isShow(index)"
+          v-for="(item,index) in recomData"
+          :key="index"
+          :class="{
+            active: currentIndex===index
+          }"
+        >
           {{item.type}}
           <span>></span>
         </div>
       </div>
-      <div class="aside-recom">
-        <div class="recom-item" v-for="(childs,index) in recomData" :key="index">
-          <div class="items" v-for="(item,index) in childs.children" :key="index">
+      <div class="aside-recom" v-show="isflag">
+        <div class="items" v-for="(item,index) in recomData[current].children" :key="index">
+          <a href="#">
             <span>
               <i>{{index+1}}</i>
-              <a href="#">{{item.city}}</a>
+              <span class="cities undeline">{{item.city}}</span>
             </span>
-            <a href="#" class="meta">{{item.desc}}</a>
-          </div>
+            <span class="meta undeline">{{item.desc}}</span>
+          </a>
         </div>
       </div>
     </div>
@@ -33,8 +42,42 @@
 <script>
 export default {
   props: {
-    recomData: Array
-  }
+    recomData: Array,
+  },
+  data() {
+    return {
+      current: 0,
+      currentIndex: null,
+      isflag: false,
+    };
+  },
+  methods: {
+    isShow(index) {
+      // console.log(index);
+      // 第一种方式实现显示与隐藏
+      /* const recomDom = this.$refs.recomDom;
+      for (var i = 0; i < recomDom.length; i++) {
+        recomDom[i].style.color = "#000";
+        recomDom[i].style.borderRight = "1px solid #ccc";
+      }
+      recomDom[index].style.color = "#ffa500";
+      recomDom[index].style.borderRightColor = "#fff"; */
+      // 第二种方式实现显示与隐藏
+      this.currentIndex = index;
+      this.current = index;
+      this.isflag = true;
+    },
+    isHide() {
+      /* const recomDom = this.$refs.recomDom;
+      for (var i = 0; i < recomDom.length; i++) {
+        recomDom[i].style.color = "#000";
+        recomDom[i].style.borderRight = "1px solid #ccc";
+      } */
+      this.currentIndex = null;
+      this.current = 0;
+      this.isflag = false;
+    },
+  },
 };
 </script>
 
@@ -43,56 +86,62 @@ export default {
   .post-aside {
     position: relative;
     width: 260px;
-    border: 1px solid #ccc;
-    // box-sizing: border-box;
+    height: 160px;
     .aside-main {
+      position: absolute;
+      width: 260px;
+      height: 160px;
+      border: 1px solid #ccc;
+      border-right: 0;
+      border-bottom: 0;
+      z-index: 2;
       .main-item {
+        width: 100%;
         height: 40px;
         line-height: 40px;
         padding: 0 20px;
+        box-sizing: border-box;
+        border-right: 1px solid #ccc;
         border-bottom: 1px solid #ccc;
         font-size: 14px;
-        &:last-child {
-          border-bottom: 0;
-        }
         span {
           float: right;
           font-size: 20px;
           font-family: serif;
         }
       }
+      .active {
+        color: #ffa500;
+        border-right-color: #fff;
+      }
     }
     .aside-recom {
-      display: none;
       position: absolute;
-      top: -1px;
+      top: 0;
       left: 260px;
-      z-index: 999px;
       width: 350px;
       padding: 10px 20px;
       border: 1px solid #ccc;
       background-color: #fff;
-      .recom-item {
-        .items {
-          height: 40px;
-          font-size: 14px;
+      z-index: 1;
+      .items {
+        height: 40px;
+        font-size: 14px;
+        span {
+          color: #ffa500;
+          i {
+            font-style: italic;
+            font-size: 20px;
+          }
+          .cities {
+            margin: 0 5px;
+          }
+        }
+        .meta {
           color: #666;
-          span {
-            color: #ffa500;
-            i {
-              font-style: italic;
-              font-size: 20px;
-            }
-            a {
-              margin: 0 10px;
-              &:hover {
-                text-decoration: underline;
-              }
-            }
-          }
-          & > a:hover {
-            text-decoration: underline;
-          }
+        }
+        .undeline:hover {
+          text-decoration: underline;
         }
       }
     }
