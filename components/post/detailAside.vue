@@ -30,16 +30,19 @@ export default {
     };
   },
   created() {
+    // 获取侧边栏相关攻略
     this.$axios({
       url: "/posts/recommend",
     }).then((res) => {
       console.log(res.data);
-      const newRelated = res.data.data.map((item) => {
+      const newRelated = res.data.data.filter((item) => {
         const newItem = {
           ...item,
           updated_at: moment(item.updated_at).format("YYYY-MM-DD HH:MM"),
         };
-        return newItem;
+        if (newItem.images.length > 0 && newItem.title) {
+          return newItem;
+        }
       });
       this.related = newRelated;
     });
