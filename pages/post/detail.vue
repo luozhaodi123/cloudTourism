@@ -9,6 +9,7 @@
           <span class="divider">/</span>
           <span class="self">攻略详情</span>
         </div>
+        <!-- 详情内容 -->
         <div class="main-content" v-for="(item,index) in details" :key="index">
           <!-- 标题 -->
           <h2 class="title">{{item.title}}</h2>
@@ -18,6 +19,13 @@
           </div>
           <!-- 内容 -->
           <div class="detail-content" v-html="item.content"></div>
+        </div>
+        <!-- 详情攻略文章评论 -->
+        <div class="comments">
+          <!-- 评论发表组件 -->
+          <DetailPublishCom />
+          <!-- 评论回复组件 -->
+          <DetailComReply />
         </div>
       </div>
       <!-- 左侧侧边栏 -->
@@ -31,19 +39,25 @@
 <script>
 import moment from "moment";
 import DetailAside from "@/components/post/detailAside";
+import DetailPublishCom from "@/components/post/detailPublishCom";
+import DetailComReply from "@/components/post/detailComReply";
 export default {
   components: {
     DetailAside,
+    DetailPublishCom,
+    DetailComReply,
   },
   data() {
     return {
       details: [],
+      total: 0,
     };
   },
   watch: {
+    // 检测路由变化，并且发送请求
     "$route.query.id": {
       handler() {
-        console.log("路由发送变化了");
+        // console.log("路由发送变化了");
         this.getDetails();
       },
       immediate: true,
@@ -53,8 +67,8 @@ export default {
     this.getDetails();
   },
   methods: {
+    // 获取攻略文章详情数据并渲染
     getDetails() {
-      // 获取攻略文章详情数据并渲染
       this.$axios({
         url: "/posts",
         params: {

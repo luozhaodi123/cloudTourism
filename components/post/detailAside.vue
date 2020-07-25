@@ -34,7 +34,7 @@ export default {
     this.$axios({
       url: "/posts/recommend",
     }).then((res) => {
-      console.log(res.data);
+      // console.log(res.data);
       const newRelated = res.data.data.filter((item) => {
         const newItem = {
           ...item,
