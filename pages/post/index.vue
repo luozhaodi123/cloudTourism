@@ -3,7 +3,7 @@
     <div class="main">
       <!-- 左侧侧边栏 -->
       <div class="aside">
-        <Aside v-if="data" :recomData="data" />
+        <IndexAside v-if="data" :recomData="data" />
       </div>
       <!-- 右侧搜索栏已经攻略组件 -->
       <div class="search">
@@ -14,11 +14,11 @@
 </template>
 
 <script>
-import Aside from "@/components/post/aside";
+import IndexAside from "@/components/post/IndexAside";
 import Search from "@/components/post/search";
 export default {
   components: {
-    Aside,
+    IndexAside,
     Search,
   },
   data() {

@@ -25,15 +25,56 @@
       <div v-if="articles.length>0">
         <div class="article" v-for="item in articles" :key="item.id">
           <!-- 单图片 -->
-          <el-row v-if="item.images.length>0&&item.images.length<3" class="oneArticle" type="flex">
-            <div class="imgBox">
-              <img :src="item.images[0]" alt />
-            </div>
-            <div class="oneContBox">
+          <nuxt-link :to="`/post/detail?id=${item.id}`">
+            <el-row
+              v-if="item.images.length>0&&item.images.length<3"
+              class="oneArticle"
+              type="flex"
+            >
+              <div class="imgBox">
+                <img :src="item.images[0]" alt />
+              </div>
+              <div class="oneContBox">
+                <h2 class="title">
+                  <a href="#">{{item.title}}</a>
+                </h2>
+                <div class="content">{{item.summary}}</div>
+                <div class="footer">
+                  <div class="user">
+                    <i class="el-icon-location-outline"></i>
+                    {{item.cityName}}
+                    by
+                    <img
+                      :src="$axios.defaults.baseURL+item.account.defaultAvatar"
+                      alt
+                    />
+                    {{item.account.nickname}}
+                    <i class="el-icon-view"></i>
+                    {{item.watch>0?item.watch:0}}
+                  </div>
+                  <div class="good">{{item.like>0?item.like:0}} 赞</div>
+                </div>
+              </div>
+            </el-row>
+          </nuxt-link>
+          <!-- 多图片 -->
+          <nuxt-link :to="`/post/detail?id=${item.id}`">
+            <el-row v-if="item.images.length>=3" class="MoreArticle">
               <h2 class="title">
                 <a href="#">{{item.title}}</a>
               </h2>
               <div class="content">{{item.summary}}</div>
+              <el-row type="flex" justify="space-between" class="imgBox">
+                <el-col :span="7">
+                  <img :src="item.images[0]" alt />
+                </el-col>
+                <el-col :span="7">
+                  <img :src="item.images[1]" alt />
+                </el-col>
+                <el-col :span="7">
+                  <img :src="item.images[2]" alt />
+                </el-col>
+              </el-row>
               <div class="footer">
                 <div class="user">
                   <i class="el-icon-location-outline"></i>
@@ -45,45 +86,12 @@
                   />
                   {{item.account.nickname}}
                   <i class="el-icon-view"></i>
-                  {{item.watch>0?item.watch:0}}
+                  {{item.watch}}
                 </div>
                 <div class="good">{{item.like>0?item.like:0}} 赞</div>
               </div>
-            </div>
-          </el-row>
-          <!-- 多图片 -->
-          <el-row v-if="item.images.length>=3" class="MoreArticle">
-            <h2 class="title">
-              <a href="#">{{item.title}}</a>
-            </h2>
-            <div class="content">{{item.summary}}</div>
-            <el-row type="flex" justify="space-between" class="imgBox">
-              <el-col :span="7">
-                <img :src="item.images[0]" alt />
-              </el-col>
-              <el-col :span="7">
-                <img :src="item.images[1]" alt />
-              </el-col>
-              <el-col :span="7">
-                <img :src="item.images[2]" alt />
-              </el-col>
             </el-row>
-            <div class="footer">
-              <div class="user">
-                <i class="el-icon-location-outline"></i>
-                {{item.cityName}}
-                by
-                <img
-                  :src="$axios.defaults.baseURL+item.account.defaultAvatar"
-                  alt
-                />
-                {{item.account.nickname}}
-                <i class="el-icon-view"></i>
-                {{item.watch}}
-              </div>
-              <div class="good">{{item.like>0?item.like:0}} 赞</div>
-            </div>
-          </el-row>
+          </nuxt-link>
         </div>
       </div>
       <div v-else class="tips">暂时还没有该城市的游玩攻略哦</div>
