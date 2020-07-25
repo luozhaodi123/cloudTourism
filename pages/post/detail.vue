@@ -61,14 +61,16 @@ export default {
           id: this.$route.query.id,
         },
       }).then((res) => {
-        console.log(res.data.data);
+        // console.log(res.data.data);
+        const newDetails = [];
         const itemList = {
           ...res.data.data[0],
           create_at: moment(res.data.data[0].updated_at).format(
             "YYYY-MM-DD HH:MM"
           ),
         };
-        this.details.push(itemList);
+        newDetails.push(itemList);
+        this.details = newDetails;
       });
     },
   },
@@ -120,7 +122,7 @@ export default {
         /deep/p {
           width: 700px;
           margin: 5px 0;
-          & > img {
+          img {
             max-width: 700px;
           }
           span {

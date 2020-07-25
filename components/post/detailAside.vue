@@ -1,5 +1,5 @@
 <template>
-  <div class="related">
+  <div class="related" v-if="related.length>0">
     <h2 class="related-title">相关攻略</h2>
     <div class="listBox" v-if="related">
       <div class="itemsList" v-for="item in related" :key="item.id">
