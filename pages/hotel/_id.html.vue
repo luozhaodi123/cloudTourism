@@ -1,4 +1,5 @@
 <template>
+  <!-- 酒店详情 -->
   <section class="hotel-content">
     <!-- 头部 -->
     <header v-if="HotelData">
@@ -23,14 +24,28 @@
       </div>
     </header>
     <div class="photo-view">
-      <div class="left-imgList"></div>
+      <div class="left-imgList">
+        <img src="@/assets/images/001.jpg" alt />
+      </div>
       <div class="right-imgList">
-        <div class="img-min"></div>
-        <div class="img-min"></div>
-        <div class="img-min"></div>
-        <div class="img-min"></div>
-        <div class="img-min"></div>
-        <div class="img-min"></div>
+        <div class="img-min">
+          <img src="@/assets/images/001.jpg" alt />
+        </div>
+        <div class="img-min">
+          <img src="@/assets/images/002.jpg" alt />
+        </div>
+        <div class="img-min">
+          <img src="@/assets/images/003.jpg" alt />
+        </div>
+        <div class="img-min">
+          <img src="@/assets/images/004.jpg" alt />
+        </div>
+        <div class="img-min">
+          <img src="@/assets/images/002.jpg" alt />
+        </div>
+        <div class="img-min">
+          <img src="@/assets/images/003.jpg" alt />
+        </div>
       </div>
     </div>
     <div class="room-type" v-if="HotelData">
@@ -48,11 +63,31 @@
       </el-table>
     </div>
     <div class="GaoDe-MapApi">
-      <div class="Map-box"></div>
+      <div class="Map-box">
+        <client-only>
+          <div id="MapContainer"></div>
+        </client-only>
+      </div>
       <div class="poi-list">
-        <el-tabs v-model="activeName">
-          <el-tab-pane label="风景" name="scenery">用户管理</el-tab-pane>
-          <el-tab-pane label="交通" name="traffic">配置管理</el-tab-pane>
+        <el-tabs v-model="activeName" @tab-click="cutSearch">
+          <el-tab-pane label="风景" name="scenery">
+            <div class="poi-list">
+              <ul v-if="sceneryData">
+                <li v-for="(item,ind) in sceneryData" :key="ind">
+                  <span>{{item.name}}</span>
+                </li>
+              </ul>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane label="交通" name="traffic">
+            <div class="poi-list">
+              <ul v-if="trafficData">
+                <li v-for="(item,ind) in trafficData" :key="ind">
+                  <span>{{item.name}}</span>
+                </li>
+              </ul>
+            </div>
+          </el-tab-pane>
         </el-tabs>
       </div>
     </div>
@@ -165,9 +200,24 @@ export default {
           address: "￥236起"
         }
       ],
+      // 房间内饰的图片组
       activeName: "scenery",
       // 评价
-      rateValue: 3.6
+      rateValue: 3.6,
+      thiaaa: "广州塔",
+      // 搜索配置
+      // 兴趣类别
+      type: "",
+      // 搜索城市
+      city: "",
+      // 搜索关键字
+      SearchVal: "",
+      // 搜索目标的维度
+      cpoint: [],
+      // 风景名胜数据
+      sceneryData: "",
+      // 交通信息数据
+      trafficData: ""
     };
   },
   mounted() {
@@ -182,9 +232,87 @@ export default {
         }
       }).then(res => {
         const { data } = res.data;
+        // console.log('data"', res);
         this.HotelData = data[0];
         console.log(this.HotelData);
+        this.city = this.HotelData.real_city;
+        this.SearchVal = this.HotelData.name;
+
+        this.MapApi({
+          that: this,
+          KeyStr: "风景名胜",
+          KeyType: "sceneryData"
+        });
       });
+    },
+
+    MapApi(option) {
+      let that = option.that;
+      window.onLoad = function() {
+        let map = new AMap.Map("MapContainer", {
+          zoom: 12,
+          resizeEnable: true
+        });
+
+        AMap.plugin(["AMap.ToolBar", "AMap.PlaceSearch"], function() {
+          //异步加载插件
+          let toolbar = new AMap.ToolBar();
+          map.addControl(toolbar);
+
+          // 根据关键字查询
+          // console.log(that.city);
+
+          let placeSearch = new AMap.PlaceSearch({
+            type: "",
+            city: that.city,
+            map: map
+          });
+          placeSearch.search(that.SearchVal, function(status, result) {
+            const { pois } = result.poiList;
+            // console.log("届到了：", pois);
+            if (pois.length > 0) {
+              that.cpoint[0] = pois[0].location.lng;
+              that.cpoint[1] = pois[1].location.lat;
+            }
+            // console.log("维度：", cpoint);
+
+            // 查找附近的风景名胜
+
+            placeSearch.searchNearBy(option.KeyStr, that.cpoint, 5000, function(
+              status,
+              result
+            ) {
+              // console.log("ni:", result);
+              if (option.KeyType) {
+                that[option.KeyType] = result.poiList.pois;
+              }
+            });
+          });
+        });
+      };
+      const key = "3559b089b57c0ac8c52de6ebae6aae9a"; // 你的key
+      const url = `https://webapi.amap.com/maps?v=1.4.15&key=${key}&callback=onLoad&plugin=AMap.ToolBar,AMap.Autocomplete,AMap.PlaceSearch`;
+      const jsapi = document.createElement("script");
+      jsapi.charset = "utf-8";
+      jsapi.src = url;
+      document.head.appendChild(jsapi);
+    },
+
+    cutSearch(tab, event) {
+      if (tab.name === "scenery") {
+        this.MapApi({
+          that: this,
+          KeyStr: "风景名胜",
+          KeyType: "sceneryData"
+        });
+      }
+      if (tab.name === "traffic") {
+        this.MapApi({
+          that: this,
+          KeyStr: "交通",
+          KeyType: "trafficData"
+        });
+      }
     }
   }
 };
@@ -261,6 +389,11 @@ header {
       padding: 0 10px 10px;
     }
   }
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
 }
 
 // 房间类型
@@ -287,11 +420,26 @@ header {
   .Map-box {
     width: 650px;
     height: 360px;
-    background: rgb(169, 169, 169);
   }
   .poi-list {
     width: 330px;
     height: 360px;
+  }
+  #MapContainer {
+    width: 100%;
+    height: 100%;
+  }
+}
+.poi-list {
+  height: 300px;
+  overflow: hidden;
+  font-size: 14px;
+  color: #666;
+  ul li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0;
   }
 }
 // 酒店资料
