@@ -99,65 +99,6 @@
       </div>
       <div class="map" id="container"></div>
     </div>
-    <div class="filterHotel">
-      <div class="price">
-        <p>价格&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0-4000</p>
-        <div class="block">
-          <el-slider v-model="form.price"></el-slider>
-        </div>
-      </div>
-      <div class="star item">
-        <p>住宿等级</p>
-        <el-dropdown>
-          <span class="el-dropdown-link">
-            下拉菜单
-            <i class="el-icon-arrow-down el-icon--right"></i>
-          </span>
-          <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item icon="el-icon-plus">黄金糕</el-dropdown-item>
-            <el-dropdown-item icon="el-icon-circle-plus">狮子头</el-dropdown-item>
-            <el-dropdown-item icon="el-icon-circle-plus-outline">螺蛳粉</el-dropdown-item>
-            <el-dropdown-item icon="el-icon-check">双皮奶</el-dropdown-item>
-            <el-dropdown-item icon="el-icon-circle-check">蚵仔煎</el-dropdown-item>
-          </el-dropdown-menu>
-        </el-dropdown>
-      </div>
-      <div class="type item">
-        <p>住宿等级</p>
-        <el-dropdown>
-          <span class="el-dropdown-link">
-            下拉菜单
-            <i class="el-icon-arrow-down el-icon--right"></i>
-          </span>
-          <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item icon="el-icon-plus">黄金糕</el-dropdown-item>
-            <el-dropdown-item icon="el-icon-circle-plus">狮子头</el-dropdown-item>
-            <el-dropdown-item icon="el-icon-circle-plus-outline">螺蛳粉</el-dropdown-item>
-            <el-dropdown-item icon="el-icon-check">双皮奶</el-dropdown-item>
-            <el-dropdown-item icon="el-icon-circle-check">蚵仔煎</el-dropdown-item>
-          </el-dropdown-menu>
-        </el-dropdown>
-      </div>
-      <div class="brand item">
-        <p>住宿等级</p>
-        <el-dropdown>
-          <span class="el-dropdown-link">
-            下拉菜单
-            <i class="el-icon-arrow-down el-icon--right"></i>
-          </span>
-          <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item icon="el-icon-plus">黄金糕</el-dropdown-item>
-            <el-dropdown-item icon="el-icon-circle-plus">狮子头</el-dropdown-item>
-            <el-dropdown-item icon="el-icon-circle-plus-outline">螺蛳粉</el-dropdown-item>
-            <el-dropdown-item icon="el-icon-check">双皮奶</el-dropdown-item>
-            <el-dropdown-item icon="el-icon-circle-check">蚵仔煎</el-dropdown-item>
-          </el-dropdown-menu>
-        </el-dropdown>
-      </div>
-      <div class="unBtn item">
-        <p>撤销条件</p>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -167,12 +108,10 @@ export default {
   data() {
     return {
       cityList: [],
-      hotelInfo: [],
       hotelArea: [],
       form: {
-        price: null,
         city: null,
-        cityCode: null,
+        cityCode: 197,
         adult: "",
         child: "",
         input: null,
@@ -276,13 +215,14 @@ export default {
         params: {
           enterTime: this.form.enterTime,
           leftTime: this.form.leftTime,
-          city: Number(this.form.cityCode)
+          city: Number(this.form.cityCode),
+          _limit: 100
         }
       }).then(res => {
         console.log(res.data);
-
-        this.hotelInfo = res.data;
+        this.$emit("getHotel", res.data.data);
       });
+      this.getArea();
     },
     // 获取时间
     setDate(value) {
@@ -304,7 +244,7 @@ export default {
       this.$axios({
         url: "hotels",
         params: {
-          city: 197,
+          city: Number(this.form.cityCode),
           _limit: 100
         }
       }).then(res => {
@@ -316,7 +256,7 @@ export default {
   },
   mounted() {
     this.getHotel();
-    this.getArea();
+
     window.onLoad = function() {
       // 2. 地图库加载完毕的回调函数
       var map = new AMap.Map("container");
@@ -446,7 +386,7 @@ export default {
         }
       }
       .more {
-        width: 110px;
+        width: 120px;
         margin-left: 70px;
         margin-top: 10px;
         .iconfont {
@@ -475,40 +415,6 @@ export default {
     .map {
       width: 420px;
       background-color: red;
-    }
-  }
-  .filterHotel {
-    display: flex;
-    height: 80px;
-    text-align: center;
-    border: 1px solid #e4e4e4;
-    padding: 8px 0;
-    box-sizing: border-box;
-    p {
-      margin-bottom: 8px;
-    }
-    .price {
-      width: 196px;
-      .block {
-        width: 150px;
-        margin: 0 auto;
-      }
-    }
-    .item {
-      flex: 1;
-      border-left: 1px solid #e4e4e4;
-    }
-    .unBtn {
-      p {
-        width: 60%;
-        height: 80%;
-        margin: auto;
-        margin-top: 6px;
-        color: white;
-        line-height: 3;
-        background-color: rgb(102, 177, 255);
-        border-radius: 5px;
-      }
     }
   }
 }
