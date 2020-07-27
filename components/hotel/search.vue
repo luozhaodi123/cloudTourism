@@ -8,7 +8,9 @@
           :fetch-suggestions="querySearchcity"
           placeholder="城市名"
           @select="handleSelect"
+          blur="default"
           :trigger-on-focus="false"
+          @blur="inputFirst"
         ></el-autocomplete>
       </div>
       <div class="center">
@@ -53,7 +55,7 @@
       </div>
       <div class="searchBtn" @click="conditionSearch">查看价格</div>
     </div>
-    <div class="site">
+    <div class="site" v-if="hotelArea">
       <div class="info">
         <div class="area" :class="{moreBtn:moreFlage}">
           <div class="title">区域：</div>
@@ -107,8 +109,8 @@ import moment from "moment";
 export default {
   data() {
     return {
-      cityList: [],
-      hotelArea: [],
+      cityList: null,
+      hotelArea: null,
       form: {
         city: null,
         cityCode: 197,
@@ -252,6 +254,13 @@ export default {
           return item.area;
         });
       });
+    },
+    // 输入城市不选择建议直接失去焦点时触发
+    inputFirst() {
+      if (this.cityList) {
+        this.form.cityCode = this.cityList[0].id;
+        this.form.city = this.cityList[0].value;
+      }
     }
   },
   mounted() {
@@ -414,7 +423,6 @@ export default {
     }
     .map {
       width: 420px;
-      background-color: red;
     }
   }
 }
