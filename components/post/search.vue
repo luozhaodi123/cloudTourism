@@ -22,8 +22,8 @@
     </el-row>
     <!-- 游记文章 -->
     <div class="travelArticle">
-      <div v-if="articles.length>0">
-        <div class="article" v-for="item in articles" :key="item.id">
+      <div v-if="dataList.length>0">
+        <div class="article" v-for="item in dataList" :key="item.id">
           <!-- 单图片 -->
           <nuxt-link :to="`/post/detail?id=${item.id}`">
             <el-row
@@ -38,7 +38,7 @@
                 <h2 class="title">
                   <a href="#">{{item.title}}</a>
                 </h2>
-                <div class="content">{{item.summary}}</div>
+                <div class="content" v-html="item.summary"></div>
                 <div class="footer">
                   <div class="user">
                     <i class="el-icon-location-outline"></i>
@@ -92,6 +92,32 @@
               </div>
             </el-row>
           </nuxt-link>
+          <!-- 没图片 -->
+          <nuxt-link :to="`/post/detail?id=${item.id}`">
+            <el-row class="noImages" v-if="item.images.length==0">
+              <div class="oneContBox">
+                <h2 class="title">
+                  <a href="#">{{item.title}}</a>
+                </h2>
+                <div class="content">{{item.summary}}</div>
+                <div class="footer">
+                  <div class="user">
+                    <i class="el-icon-location-outline"></i>
+                    {{item.cityName}}
+                    by
+                    <img
+                      :src="$axios.defaults.baseURL+item.account.defaultAvatar"
+                      alt
+                    />
+                    {{item.account.nickname}}
+                    <i class="el-icon-view"></i>
+                    {{item.watch>0?item.watch:0}}
+                  </div>
+                  <div class="good">{{item.like>0?item.like:0}} 赞</div>
+                </div>
+              </div>
+            </el-row>
+          </nuxt-link>
         </div>
       </div>
       <div v-else class="tips">暂时还没有该城市的游玩攻略哦</div>
@@ -100,7 +126,7 @@
     <el-pagination
       @size-change="sizeChange"
       @current-change="currentChange"
-      :page-sizes="[3, 4, 10, 15]"
+      :page-sizes="[3, 5, 10, 15]"
       :page-size="pageSize"
       layout="total, sizes, prev, pager, next, jumper"
       :total="total"
@@ -113,31 +139,30 @@ export default {
   data() {
     return {
       searchValue: "",
-      // articles: [],
       dataList: [],
       total: 0,
-      pageIndex: 1,
+      pageIndex: 0,
       pageSize: 3,
     };
   },
   created() {
-    // 获取游玩攻略数据
-    this.$axios({
-      url: "/posts",
-    }).then((res) => {
-      console.log(res.data);
-      this.dataList = res.data.data;
-      this.total = res.data.total;
-    });
-  },
-  computed: {
-    articles() {
-      const firstIndex = (this.pageIndex - 1) * this.pageSize;
-      const lastIndex = firstIndex + this.pageSize;
-      return this.dataList.slice(firstIndex, lastIndex);
-    },
+    this.getArticleList();
   },
   methods: {
+    // 获取游玩攻略数据
+    getArticleList() {
+      this.$axios({
+        url: "/posts",
+        params: {
+          _start: this.pageIndex,
+          _limit: this.pageSize,
+        },
+      }).then((res) => {
+        console.log(res.data);
+        this.dataList = res.data.data;
+        this.total = res.data.total;
+      });
+    },
     // 搜索游玩攻略数据
     searchArticle() {
       if (!this.searchValue) {
@@ -159,11 +184,16 @@ export default {
       this.searchValue = value;
       this.searchArticle();
     },
+    // 改变当前页的页码
     currentChange(index) {
+      console.log(index);
       this.pageIndex = index;
+      this.getArticleList();
     },
+    // 改变当前页的显示的条数
     sizeChange(size) {
       this.pageSize = size;
+      this.getArticleList();
     },
   },
 };
@@ -320,6 +350,55 @@ export default {
         .good {
           font-size: 16px;
           color: orange;
+        }
+      }
+    }
+    .noImages {
+      padding: 20px 0;
+      border-bottom: 1px solid #ccc;
+      .oneContBox {
+        position: relative;
+        .title a {
+          display: block;
+          font-size: 18px;
+          font-weight: normal;
+          &:hover {
+            color: orange;
+          }
+        }
+        .content {
+          display: -webkit-box;
+          height: 150px;
+          word-break: break-all;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 3;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          margin: 10px 0;
+          font-size: 14px;
+          color: #666;
+          cursor: pointer;
+        }
+        .footer {
+          position: absolute;
+          left: 0;
+          bottom: 0;
+          width: 100%;
+          .user {
+            float: left;
+            font-size: 12px;
+            img {
+              width: 16px;
+              height: 16px;
+              margin: 5px;
+              vertical-align: middle;
+            }
+          }
+          .good {
+            float: right;
+            font-size: 16px;
+            color: orange;
+          }
         }
       }
     }

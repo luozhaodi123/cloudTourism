@@ -14,7 +14,7 @@
           <!-- 标题 -->
           <h2 class="title">{{item.title}}</h2>
           <div class="detail-info">
-            <span class="time">攻略：{{item.create_at}}</span>
+            <span class="time">攻略：{{item.updated_at}}</span>
             <span class="watch">阅读：{{item.watch?item.watch:0}}</span>
           </div>
           <!-- 内容 -->
@@ -23,10 +23,19 @@
         <!-- 详情攻略文章评论 -->
         <div class="comments">
           <!-- 评论发表组件 -->
-          <DetailPublishCom />
-          <!-- 评论回复组件 -->
-          <DetailComReply />
+          <DetailPublishCom :user="user" @reflashComList="reflashList" />
+          <!-- 评论组件 -->
+          <DetailComReply :comList="comList" @replyMain="replyMain" @replyParent="replyParent" />
         </div>
+        <!-- 分页组件 -->
+        <el-pagination
+          @size-change="sizeChange"
+          @current-change="currentChange"
+          :page-sizes="[5, 10, 15, 20]"
+          :page-size="pageSize"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total"
+        ></el-pagination>
       </div>
       <!-- 左侧侧边栏 -->
       <div class="aside">
@@ -51,6 +60,10 @@ export default {
     return {
       details: [],
       total: 0,
+      user: {},
+      comList: [],
+      pageIndex: 0,
+      pageSize: 5,
     };
   },
   watch: {
@@ -59,6 +72,7 @@ export default {
       handler() {
         // console.log("路由发送变化了");
         this.getDetails();
+        this.getComList();
       },
       immediate: true,
     },
@@ -79,13 +93,53 @@ export default {
         const newDetails = [];
         const itemList = {
           ...res.data.data[0],
-          create_at: moment(res.data.data[0].updated_at).format(
+          updated_at: moment(res.data.data[0].updated_at).format(
             "YYYY-MM-DD HH:MM"
           ),
         };
         newDetails.push(itemList);
         this.details = newDetails;
       });
+    },
+    // 回复主评论
+    replyMain(user) {
+      this.user = user;
+    },
+    // 回复父评论
+    replyParent(user) {
+      this.user = user;
+    },
+    // 获取评论数据
+    getComList() {
+      this.$axios({
+        url: "/posts/comments",
+        params: {
+          post: this.$route.query.id,
+          _start: this.pageIndex,
+          _limit: this.pageSize,
+        },
+      }).then((res) => {
+        console.log(res.data);
+        const newComList = res.data.data.filter((item) => {
+          return item.account.nickname && item.account.defaultAvatar;
+        });
+        this.comList = newComList;
+        this.total = res.data.total;
+      });
+    },
+    // 回复评论成功刷新评论组件
+    reflashList() {
+      this.getComList();
+    },
+    // 改变当前页时
+    currentChange(index) {
+      this.pageIndex = index;
+      this.getComList();
+    },
+    // 改变当前页显示的评论条数
+    sizeChange(size) {
+      this.pageSize = size;
+      this.getComList();
     },
   },
 };
@@ -149,9 +203,13 @@ export default {
           }
         }
       }
+      .el-pagination {
+        text-align: center;
+        margin: 20px 0;
+      }
     }
     .aside {
-      width: 250px;
+      width: 260px;
     }
   }
 }

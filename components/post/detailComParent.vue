@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Parent :parentData="parentData.parent" v-if="parentData.parent" />
+    <Parent :parentData="parentData.parent" v-if="parentData.parent" @replyParent="nextReply" />
     <div class="sonItem">
       <div class="users">
         <div class="user">
@@ -10,8 +10,13 @@
         <div class="level">楼层{{parentData.level}}</div>
       </div>
       <div class="content">{{parentData.content}}</div>
+      <div class="imgBox">
+        <div class="images" v-for="(imgItem,index) in parentData.pics" :key="index">
+          <img :src="$axios.defaults.baseURL+imgItem.url" alt />
+        </div>
+      </div>
       <div class="replyBtn">
-        <span @click="reply(parentData.id)">回复</span>
+        <span @click="replyParent({nickname:parentData.account.nickname,id:parentData.id})">回复</span>
       </div>
     </div>
   </div>
@@ -28,6 +33,17 @@ export default {
     return {
       moment: moment,
     };
+  },
+  methods: {
+    // 递归组件发送回复功能
+    replyParent(user) {
+      // console.log(user);
+      this.$emit("replyParent", user);
+    },
+    nextReply(user) {
+      // console.log(user);
+      this.$emit("replyParent", user);
+    },
   },
 };
 </script>
@@ -62,9 +78,29 @@ export default {
     font-size: 14px;
     color: #000;
   }
+  .imgBox {
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: 15px;
+    .images {
+      margin: 10px 10px 0 0;
+      padding: 5px 5px 2px;
+      border: 1px dashed #ccc;
+      background-color: #fff;
+      &:last-child {
+        margin-right: 0;
+      }
+      img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+      }
+    }
+  }
   .replyBtn {
     text-align: right;
     font-size: 12px;
+    cursor: pointer;
   }
 }
 </style>

@@ -12,7 +12,14 @@
       </div>
     </el-row>
     <h2 class="title">评论</h2>
-    <el-tag closable :disable-transitions="false" @close="handleClose">{{`回复@管理员`}}</el-tag>
+    <!-- disable-transitions="false" 是否使用渐变动画 -->
+    <el-tag
+      :key="index"
+      v-for="(tag,index) in dynamicTags"
+      closable
+      :disable-transitions="false"
+      @close="handleClose(index)"
+    >{{`回复@${tag}`}}</el-tag>
     <!-- 发布的内容 -->
     <el-input type="textarea" :rows="2" placeholder="说点什么吧..." v-model="form.content"></el-input>
     <div class="uploadBox">
@@ -47,6 +54,7 @@
 
 <script>
 export default {
+  props: ["user"],
   data() {
     return {
       form: {
@@ -61,6 +69,7 @@ export default {
       },
       total: 0,
       isflag: false,
+      dynamicTags: [],
     };
   },
   watch: {
@@ -71,18 +80,40 @@ export default {
         this.isflag = true;
       },
     },
-  },
-  created() {
-    this.getComTotal();
+    // 监听路由变化
+    "$route.query.id": {
+      handler() {
+        this.getComTotal();
+      },
+      immediate: true,
+    },
+    // 监听user这个数据是否发生变化
+    user: {
+      handler() {
+        if (this.user.id && this.user.nickname) {
+          this.form.follow = this.user.id;
+          const newDynamicTags = [];
+          newDynamicTags.push(this.user.nickname);
+          this.dynamicTags = newDynamicTags;
+        }
+      },
+      immediate: true,
+    },
   },
   methods: {
-    handleClose() {
-      // this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
+    // 关闭回复评论谁
+    handleClose(index) {
+      this.dynamicTags.splice(index, 1);
     },
     // 获取评论总条数
     getComTotal() {
       this.$axios({
         url: "/posts/comments",
+        params: {
+          post: this.$route.query.id,
+          _start: 0,
+          _limit: 5,
+        },
       }).then((res) => {
         // console.log(res.data);
         this.total = res.data.total;
@@ -127,7 +158,7 @@ export default {
           Authorization: "Bearer " + this.$store.state.user.userInfo.token,
         },
       }).then((res) => {
-        console.log(res.data);
+        // console.log(res.data);
         if (res.data.message == "提交成功") {
           this.isflag = true;
           this.$message.success("评论发表成功");
@@ -137,6 +168,7 @@ export default {
             pics: [],
             post: "",
           };
+          this.$emit("reflashComList");
         }
       });
     },

@@ -72,6 +72,7 @@ export default {
         title: "",
         content: "",
         city: "",
+        time: "",
       },
       drafts: [],
       customToolbar: [
@@ -124,7 +125,6 @@ export default {
     },
     // 发表攻略文章
     sendArticle() {
-      console.log(123);
       // 判断是否为空
       let isSend = true;
       for (var key in this.form) {
@@ -144,6 +144,7 @@ export default {
       }
       console.log(isSend);
       // 发送请求发表攻略文章
+      const { title, content, city } = this.form;
       if (isSend) {
         this.$axios({
           url: "/posts",
@@ -151,7 +152,7 @@ export default {
           headers: {
             Authorization: "Bearer " + this.$store.state.user.userInfo.token,
           },
-          data: this.form,
+          data: { title, content, city },
         }).then((res) => {
           console.log(res.data);
           if (res.data.message == "新增成功") {
@@ -167,25 +168,86 @@ export default {
     },
     // 保存到草稿
     sendDraft() {
-      console.log(123);
       // 保存到草稿中先判断起码有没有标题
       if (!this.form.title) {
         this.$message.error("标题不能为空，请输入");
         return;
       }
       // 将数据存储到drafts和vuex中
+      const newScordList = this.$store.state.drafts.drafts;
+      // console.log(newScordList);
+      // 对数据进行处理
+      const date = new Date();
+      // date.getHours()
       const scord = {
         ...this.form,
-        time: moment(new Date()).format("YYYY-MM-DD"),
+        time:
+          date.getFullYear() +
+          "-" +
+          `${
+            date.getMonth() + 1 >= 10
+              ? date.getMonth() + 1
+              : "0" + (date.getMonth() + 1)
+          }` +
+          "-" +
+          `${date.getDate() >= 10 ? date.getDate() : "0" + date.getDate()}` +
+          " " +
+          `${date.getHours() >= 10 ? date.getHours() : "0" + date.getHours()}` +
+          ":" +
+          `${
+            date.getMinutes() >= 10
+              ? date.getMinutes()
+              : "0" + date.getMinutes()
+          }` +
+          ":" +
+          `${
+            date.getSeconds() >= 10
+              ? date.getSeconds()
+              : "0" + date.getSeconds()
+          }`,
       };
       console.log(scord);
-      // this.drafts.unshift(scord);
-      this.$message("已保存到草稿中");
-      this.$store.commit("drafts/setDrafts", scord);
+      if (newScordList.length > 0) {
+        let isFlag = true;
+        newScordList.forEach((item, index) => {
+          // 若vuex中数据tagId与回显数据id相同，说明正在编辑未发布的数据
+          if (item.time == this.form.time) {
+            isFlag = false;
+            this.$message("已保存到草稿中");
+            this.$store.commit("drafts/removeDrafts", index);
+            this.$store.commit("drafts/setDrafts", scord);
+            this.form = {
+              title: "",
+              content: "",
+              city: "",
+              time: "",
+            };
+          }
+        });
+        if (isFlag) {
+          this.$message("已保存到草稿中");
+          this.$store.commit("drafts/setDrafts", scord);
+          this.form = {
+            title: "",
+            content: "",
+            city: "",
+            time: "",
+          };
+        }
+      } else {
+        this.$message("已保存到草稿中");
+        this.$store.commit("drafts/setDrafts", scord);
+        this.form = {
+          title: "",
+          content: "",
+          city: "",
+          time: "",
+        };
+      }
     },
     // 删除草稿中数据
     deleteDrafts(index) {
-      this.$confirm("该操作将永久删除该记录，是否继续？", "提示", {
+      this.$confirm("该操作将永久删除该记录，是否继续？", "删除提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
@@ -196,12 +258,8 @@ export default {
     },
     // 编辑草稿中数据
     editorDrafts(index) {
-      const { title, content, city } = this.drafts[index];
-      this.form = {
-        title,
-        content,
-        city,
-      };
+      const { title, content, city, time } = this.drafts[index];
+      this.form = { title, content, city, time };
     },
   },
 };
