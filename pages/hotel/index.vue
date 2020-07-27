@@ -10,7 +10,7 @@
     <search @getHotel="setHotel" />
     <!-- 过滤筛选组件 -->
     <hotelFilter :hoteDdata="hotelInfo" />
-    <div v-if="hotelInfo">
+    <div v-if="hotelData">
       <hotelItem v-for="(item,index) in hotelInfo" :key="index" :data="item" />
       <div class="page">
         <el-pagination
@@ -38,17 +38,17 @@ export default {
   data() {
     return {
       // 渲染的酒店信息
-      hotelInfo: [],
+      hotelInfo: null,
       // 备份获取到的所有酒店信息
       hotelData: [],
       pageSize: 5,
-      pageIndex: 3
+      pageIndex: 1
     };
   },
   computed: {},
   methods: {
     setHotel(hotelInfo) {
-      this.hotelData = [...hotelInfo];
+      this.hotelData = hotelInfo;
       console.log(hotelInfo);
     },
     showHotel() {
