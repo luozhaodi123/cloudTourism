@@ -1,48 +1,50 @@
 <template>
   <div>
-    <div class="object">
-      <div class="img">
-        <img :src="data.photos" alt />
-      </div>
-      <div class="info">
-        <div class="title">{{data.name}}</div>
-        <div class="english">{{data.alias}}</div>
-        <div class="details">
-          <el-rate
-            :value="data.stars"
-            disabled
-            show-score
-            text-color="#ff9900"
-            score-template="{value}"
-          ></el-rate>
-          <div>
-            <span>{{data.all_remarks}}</span> 条评论
-          </div>
-          <div>
-            <span>{{data.price}}</span> 篇游记
-          </div>
+    <a :href="`/hotel/${data.id}.html`">
+      <div class="object">
+        <div class="img">
+          <img :src="data.photos" alt />
         </div>
-        <div class="place">
-          <span class="el-icon-location"></span>
-          位于：吉珠路37号
-        </div>
-      </div>
-      <div class="price">
-        <div
-          class="item"
-          v-for="(item,index) in data.products"
-          :key="index"
-          @mouseenter="active(index)"
-          @mouseleave="flage =null"
-          :class="{active:flage==index}"
-        >
-          <div class="name">{{item.name}}</div>
-          <div class="price">
-            <span>￥{{item.price}}</span> 起
+        <div class="info">
+          <div class="title">{{data.name}}</div>
+          <div class="english">{{data.alias}}</div>
+          <div class="details">
+            <el-rate
+              :value="data.stars"
+              disabled
+              show-score
+              text-color="#ff9900"
+              score-template="{value}"
+            ></el-rate>
+            <div>
+              <span>{{data.all_remarks}}</span> 条评论
+            </div>
+            <div>
+              <span>{{data.price}}</span> 篇游记
+            </div>
+          </div>
+          <div class="place">
+            <span class="el-icon-location"></span>
+            位于：吉珠路37号
           </div>
         </div>
+        <div class="price">
+          <div
+            class="item"
+            v-for="(item,index) in data.products"
+            :key="index"
+            @mouseenter="active(index)"
+            @mouseleave="flage =null"
+            :class="{active:flage==index}"
+          >
+            <div class="name">{{item.name}}</div>
+            <div class="price">
+              <span>￥{{item.price}}</span> 起
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    </a>
   </div>
 </template>
 
