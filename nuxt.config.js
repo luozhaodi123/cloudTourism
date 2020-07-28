@@ -15,8 +15,10 @@ export default {
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-      { rel: 'stylesheet', type: 'text/css', href: '//at.alicdn.com/t/font_1168872_ehvuah8v57g.css' } // 新增全局字体样式
-    ]
+      { rel: 'stylesheet', type: 'text/css', href: '//at.alicdn.com/t/font_1168872_ehvuah8v57g.css' },// 新增全局字体样式
+
+    ],
+
   },
 
   /*
@@ -29,7 +31,9 @@ export default {
   */
   css: [
     'element-ui/lib/theme-chalk/index.css',
-    'assets/main.css' // 新增自定义的页面过渡样式（文件来自3.4.1）
+    'assets/main.css', // 新增自定义的页面过渡样式（文件来自3.4.1）
+    '@/assets/iconfont/iconfont.css'//字体图标库
+
   ],
 
   /*
@@ -47,7 +51,8 @@ export default {
     {
       src: "@/plugins/editor",
       ssr: false
-    }
+    },
+    { src: '@/assets/iconfont/iconfont.js', ssr: false }
   ],
 
   /*

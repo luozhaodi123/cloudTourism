@@ -8,7 +8,9 @@
           :fetch-suggestions="querySearchcity"
           placeholder="城市名"
           @select="handleSelect"
+          blur="default"
           :trigger-on-focus="false"
+          @blur="inputFirst"
         ></el-autocomplete>
       </div>
       <div class="center">
@@ -53,68 +55,51 @@
       </div>
       <div class="searchBtn" @click="conditionSearch">查看价格</div>
     </div>
-    <div class="site">
-      <div class="info"></div>
-      <div class="map" id="container"></div>
-    </div>
-    <div class="filterHotel">
-      <div class="price">
-        <p>价格&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0-4000</p>
-        <div class="block">
-          <el-slider v-model="form.price"></el-slider>
+    <div class="site" v-if="hotelArea">
+      <div class="info">
+        <div class="area" :class="{moreBtn:moreFlage}">
+          <div class="title">区域：</div>
+          <div class="site" ref="site">
+            <span v-for="(item,index) in hotelArea" :key="index">{{item}}&nbsp;&nbsp;</span>
+          </div>
+        </div>
+        <div class="more" @click="moreFlage=!moreFlage">
+          <span
+            class="iconfont"
+            :class="{iconjiantou_xia:moreFlage,
+             iconjiantou_shang:!moreFlage
+            }"
+          ></span>
+          等{{hotelArea.length}}个区域
+        </div>
+        <div class="price">
+          <div class="title">均价：</div>
+          <div class="span">
+            <div>
+              <span class="iconfont iconhuangguan"></span>
+              <span class="iconfont iconhuangguan"></span>
+              <span class="iconfont iconhuangguan"></span>
+              ￥332
+            </div>
+            <div>
+              <span class="iconfont iconhuangguan"></span>
+              <span class="iconfont iconhuangguan"></span>
+              <span class="iconfont iconhuangguan"></span>
+              <span class="iconfont iconhuangguan"></span>
+              ￥562
+            </div>
+            <div>
+              <span class="iconfont iconhuangguan"></span>
+              <span class="iconfont iconhuangguan"></span>
+              <span class="iconfont iconhuangguan"></span>
+              <span class="iconfont iconhuangguan"></span>
+              <span class="iconfont iconhuangguan"></span>
+              ￥762
+            </div>
+          </div>
         </div>
       </div>
-      <div class="star item">
-        <p>住宿等级</p>
-        <el-dropdown>
-          <span class="el-dropdown-link">
-            下拉菜单
-            <i class="el-icon-arrow-down el-icon--right"></i>
-          </span>
-          <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item icon="el-icon-plus">黄金糕</el-dropdown-item>
-            <el-dropdown-item icon="el-icon-circle-plus">狮子头</el-dropdown-item>
-            <el-dropdown-item icon="el-icon-circle-plus-outline">螺蛳粉</el-dropdown-item>
-            <el-dropdown-item icon="el-icon-check">双皮奶</el-dropdown-item>
-            <el-dropdown-item icon="el-icon-circle-check">蚵仔煎</el-dropdown-item>
-          </el-dropdown-menu>
-        </el-dropdown>
-      </div>
-      <div class="type item">
-        <p>住宿等级</p>
-        <el-dropdown>
-          <span class="el-dropdown-link">
-            下拉菜单
-            <i class="el-icon-arrow-down el-icon--right"></i>
-          </span>
-          <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item icon="el-icon-plus">黄金糕</el-dropdown-item>
-            <el-dropdown-item icon="el-icon-circle-plus">狮子头</el-dropdown-item>
-            <el-dropdown-item icon="el-icon-circle-plus-outline">螺蛳粉</el-dropdown-item>
-            <el-dropdown-item icon="el-icon-check">双皮奶</el-dropdown-item>
-            <el-dropdown-item icon="el-icon-circle-check">蚵仔煎</el-dropdown-item>
-          </el-dropdown-menu>
-        </el-dropdown>
-      </div>
-      <div class="brand item">
-        <p>住宿等级</p>
-        <el-dropdown>
-          <span class="el-dropdown-link">
-            下拉菜单
-            <i class="el-icon-arrow-down el-icon--right"></i>
-          </span>
-          <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item icon="el-icon-plus">黄金糕</el-dropdown-item>
-            <el-dropdown-item icon="el-icon-circle-plus">狮子头</el-dropdown-item>
-            <el-dropdown-item icon="el-icon-circle-plus-outline">螺蛳粉</el-dropdown-item>
-            <el-dropdown-item icon="el-icon-check">双皮奶</el-dropdown-item>
-            <el-dropdown-item icon="el-icon-circle-check">蚵仔煎</el-dropdown-item>
-          </el-dropdown-menu>
-        </el-dropdown>
-      </div>
-      <div class="unBtn item">
-        <p>撤销条件</p>
-      </div>
+      <div class="map" id="container"></div>
     </div>
   </div>
 </template>
@@ -124,12 +109,11 @@ import moment from "moment";
 export default {
   data() {
     return {
-      cityList: [],
-      hotelInfo: [],
+      cityList: null,
+      hotelArea: null,
       form: {
-        price: null,
         city: null,
-        cityCode: null,
+        cityCode: 197,
         adult: "",
         child: "",
         input: null,
@@ -155,7 +139,10 @@ export default {
         ],
         enterTime: null,
         leftTime: null
-      }
+      },
+      // 控制区域查看更多
+      moreFlage: false
+      // 存放酒店所在区域
     };
   },
   methods: {
@@ -230,13 +217,14 @@ export default {
         params: {
           enterTime: this.form.enterTime,
           leftTime: this.form.leftTime,
-          city: Number(this.form.cityCode)
+          city: Number(this.form.cityCode),
+          _limit: 100
         }
       }).then(res => {
         console.log(res.data);
-
-        this.hotelInfo = res.data;
+        this.$emit("getHotel", res.data.data);
       });
+      this.getArea();
     },
     // 获取时间
     setDate(value) {
@@ -251,9 +239,44 @@ export default {
     //加载地图
     lodingMap() {
       var map = new AMap.Map("container");
+    },
+    // 获取区域地名
+    getArea() {
+      var Area = [];
+      this.$axios({
+        url: "hotels",
+        params: {
+          city: Number(this.form.cityCode),
+          _limit: 100
+        }
+      }).then(res => {
+        this.hotelArea = res.data.data.map(item => {
+          return item.area;
+        });
+      });
+    },
+    // 输入城市不选择建议直接失去焦点时触发
+    inputFirst() {
+      if (this.cityList) {
+        this.form.cityCode = this.cityList[0].id;
+        this.form.city = this.cityList[0].value;
+      }
     }
   },
-  mounted() {}
+  mounted() {
+    this.getHotel();
+
+    window.onLoad = function() {
+      // 2. 地图库加载完毕的回调函数
+      var map = new AMap.Map("container");
+    };
+    var url =
+      "https://webapi.amap.com/maps?v=1.4.15&key=a0bb078664ce8d5d6fb67dae90e34bdd&callback=onLoad";
+    var jsapi = document.createElement("script");
+    jsapi.charset = "utf-8";
+    jsapi.src = url;
+    document.head.appendChild(jsapi);
+  }
 };
 </script>
 
@@ -338,48 +361,68 @@ export default {
     display: flex;
     height: 230px;
     padding-bottom: 10px;
+    color: rgb(102, 102, 102);
     .info {
       flex: 1;
       padding-right: 20px;
-      background-color: orange;
+      // background-color: orange;
+      .area {
+        display: flex;
+        height: 46px;
+        width: 100%;
+        padding-right: 10px;
+        overflow: hidden;
+        .title {
+          width: 70px;
+          height: 20px;
+          line-height: 20px;
+          text-align: center;
+        }
+        .site {
+          display: flex;
+          flex: 1;
+          flex-wrap: wrap;
+          height: 46px;
+
+          padding-bottom: 0;
+          span {
+            height: 20px;
+            line-height: 20px;
+          }
+        }
+        &.moreBtn {
+          height: 120px;
+        }
+      }
+      .more {
+        width: 120px;
+        margin-left: 70px;
+        margin-top: 10px;
+        .iconfont {
+          color: orange;
+        }
+      }
+      .price {
+        display: flex;
+        margin-top: 20px;
+        .title {
+          width: 70px;
+          text-align: center;
+        }
+        .span {
+          display: flex;
+          flex: 1;
+          div {
+            margin-right: 20px;
+            .iconfont {
+              color: orange;
+            }
+          }
+        }
+      }
     }
     .map {
       width: 420px;
-      background-color: red;
-    }
-  }
-  .filterHotel {
-    display: flex;
-    height: 80px;
-    text-align: center;
-    border: 1px solid #e4e4e4;
-    padding: 8px 0;
-    box-sizing: border-box;
-    p {
-      margin-bottom: 8px;
-    }
-    .price {
-      width: 196px;
-      .block {
-        width: 150px;
-        margin: 0 auto;
-      }
-    }
-    .item {
-      flex: 1;
-      border-left: 1px solid #e4e4e4;
-    }
-    .unBtn {
-      p {
-        width: 60%;
-        height: 80%;
-        margin: auto;
-        margin-top: 6px;
-        color: white;
-        line-height: 3;
-        background-color: rgb(102, 177, 255);
-        border-radius: 5px;
-      }
     }
   }
 }
